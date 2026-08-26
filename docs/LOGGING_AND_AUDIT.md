@@ -1,15 +1,7 @@
 # Logging and Audit
 
-The CockpitConsole implements distinct separation of concerns regarding logging and auditing.
+## Monolog Channels
+- `device_ingestion`: A dedicated channel specifically for logging the activity of the `DeviceIngestionService`. It records successful ingestions, structural validation failures, malformed JSON bodies, and persistence errors.
 
-## 1. device_events
-The raw source-of-truth device journal. This is **not** a log file; it is a critical database table containing unaltered incoming JSON payloads, timestamps, and origin metadata.
-
-## 2. audit_events
-The application/business audit trail. This tracks actions like `SESSION_STARTED` or `MANUAL_CORRECTION` with actor and entity associations.
-
-## 3. processing_failures
-Persistent business/event processing failures. Detailed failures relating to the handling of a specific `device_event` are persisted here for operator/developer inspection.
-
-## 4. Monolog (Application Logs)
-Technical/application logs located in `var/log/`. Used for stack traces, system-level errors, HTTP request logs, and infrastructure health metrics.
+## Rejected Requests / Malformed JSON
+Malformed JSON and structurally invalid requests are **not** persisted to the `device_events` database table. Instead, the raw payload and diagnostic evidence are logged to the `device_ingestion` Monolog channel to preserve evidence without bloating or breaking the database schema.

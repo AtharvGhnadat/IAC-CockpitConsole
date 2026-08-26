@@ -1,0 +1,21 @@
+monolog:
+    channels:
+        - device_ingestion
+
+    handlers:
+        main:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            channels: ["!event", "!device_ingestion"]
+        
+        device_ingestion:
+            type: stream
+            path: "%kernel.logs_dir%/device_ingestion_%kernel.environment%.log"
+            level: info
+            channels: ["device_ingestion"]
+        
+        console:
+            type: console
+            process_psr_3_messages: false
+            channels: ["!event", "!doctrine"]

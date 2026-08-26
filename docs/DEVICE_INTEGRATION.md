@@ -1,63 +1,36 @@
 # Device Integration
 
 CockpitConsole receives critical production events from 4 known sources on the local LAN.
+All HTTP endpoints expect `POST` requests with `Content-Type: application/json`.
 
 ## 1. eSSL Fingerprint
+- **Device Endpoint**: `POST /api/device/essl`
 - **Source type**: `essl`
-- **Future purpose**: Authentication/session start.
-- **Current implementation status**: Persistent journal only. Endpoint/business processing: Pending implementation.
-- **Timestamp field**: `punch_time`
-- **JSON example**:
-```json
-{
-    "machine_ip": "192.168.1.205",
-    "user_name": "Sachinadmin",
-    "privilege": "User",
-    "punch_time": "2026-08-25 18:25:22"
-}
-```
+- **Required fields**: `machine_ip`, `user_name`, `privilege`, `punch_time`
+- **Success Response**: `{"success":true,"event_id":10542,"event_uuid":"..."}`
 
-## 2. Scanner 1 - Production Trolley
-- **Source type**: `scanner1`
-- **Future purpose**: Completed production trolley.
-- **Current implementation status**: Persistent journal only. Endpoint/business processing: Pending implementation.
-- **Identifier field**: `model`
-- **Quantity field**: `quantity`
-- **JSON example**:
-```json
-{
-    "scanner": "scanner1",
-    "model": "AX7 H - 2301FW608171N",
-    "quantity": "10",
-    "scandatetime": "2026-08-25 18:25:22"
-}
-```
-
-## 3. PLC
+## 2. PLC
+- **Legacy Compatibility Endpoint**: `POST http://localhost/IAC/cockpitConsole/plcdata.php` (or `/api/device/plc`)
 - **Source type**: `plc`
-- **Future purpose**: Cockpit production request.
-- **Current implementation status**: Persistent journal only. Endpoint/business processing: Pending implementation.
-- **Identifier field**: `cockpit`
-- **JSON example**:
-```json
-{
-    "cockpit": "2301AZ106071N",
-    "dateTime": "2026-08-25 18:25:22"
-}
-```
+- **Required fields**: `cockpit`, `dateTime`
+- **Success Response**: `{"success":true,"event_id":10542,"event_uuid":"..."}`
+
+## 3. Scanner 1 - Production Trolley
+- **Device Endpoint**: `POST /api/device/scanner1`
+- **Source type**: `scanner1`
+- **Required fields**: `scanner`, `model`, `quantity`, `scandatetime`
+- **Success Response**: `{"success":true,"event_id":10542,"event_uuid":"..."}`
 
 ## 4. Scanner 2 - Dispatch
+- **Device Endpoint**: `POST /api/device/scanner2`
 - **Source type**: `scanner2`
-- **Future purpose**: Dispatch event.
-- **Current implementation status**: Persistent journal only. Endpoint/business processing: Pending implementation.
-- **Identifier field**: `model`
-- **Quantity field**: `quantity`
-- **JSON example**:
-```json
-{
-    "scanner": "scanner2",
-    "model": "AX7 H - 2301FW608171N",
-    "quantity": "10",
-    "scandatetime": "2026-08-25 18:25:22"
-}
-```
+- **Required fields**: `scanner`, `model`, `quantity`, `scandatetime`
+- **Success Response**: `{"success":true,"event_id":10542,"event_uuid":"..."}`
+
+## Failure Responses
+- `400 Bad Request`: Validation failure (e.g., missing field, invalid datetime format).
+- `413 Payload Too Large`: Request body exceeds 16KB.
+- `415 Unsupported Media Type`: Non-JSON content type.
+- `500 Internal Server Error`: Persistence failure.
+
+In case of validation failures, the detailed reason is logged in `var/log/device_ingestion_prod.log`.

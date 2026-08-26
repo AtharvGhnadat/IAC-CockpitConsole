@@ -6,8 +6,10 @@ CockpitConsole decouples the ingestion of events from the processing of business
 
 ```mermaid
 flowchart TD
-    LAN[LAN Device] --> HTTP[Future HTTP Receiver]
-    HTTP --> REC[Raw Event Recorder]
+    LAN[LAN Device] --> HTTP[DeviceReceiverController or plcdata.php]
+    HTTP --> INGEST[DeviceIngestionService]
+    INGEST --> VALIDATE{Payload Validators}
+    VALIDATE --> REC[RawDeviceEventRecorder]
     REC --> DB[(device_events)]
     DB --> PROC[Future Business Processor]
     PROC --> STATE[(Current State)]
@@ -15,3 +17,4 @@ flowchart TD
 
 **Key Principle**: `Event ingestion` != `Business processing`.
 Events are safely committed to the database independently of dashboard state or batch logic.
+The HTTP receivers acknowledge only after the raw event is durably committed to the `device_events` table.

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>CockpitConsole - Locked</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .lock-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .status {
+            font-size: 1.5em;
+            color: #d9534f;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        .instruction {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 40px;
+        }
+        .terminal-info {
+            font-size: 1em;
+            color: #777;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #eee;
+            border-radius: 4px;
+        }
+        .ready-indicator {
+            color: #5cb85c;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .error-message {
+            color: #d9534f;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="lock-container">
+        <h1>CockpitConsole</h1>
+        <div class="status">DASHBOARD LOCKED</div>
+        <div class="instruction">Scan your fingerprint to continue</div>
+        
+        <div class="terminal-info">
+            Terminal: {{ terminal_code }}
+            {% if not terminal %}
+                <br><span style="color:red;">(Unregistered Terminal)</span>
+            {% endif %}
+        </div>
+        
+        <div class="ready-indicator">
+            ● System Ready
+        </div>
+
+        <div id="errorBox" class="error-message"></div>
+    </div>
+
+    <script>
+        function checkSession() {
+            fetch('/session/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.authenticated) {
+                        window.location.href = '/dashboard';
+                    }
+                })
+                .catch(error => console.error('Error polling session status:', error));
+        }
+
+        // Poll every 1.5 seconds
+        setInterval(checkSession, 1500);
+    </script>
+</body>
+</html>

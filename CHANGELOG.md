@@ -16,6 +16,19 @@ All notable changes to CockpitConsole will be documented here.
 
 ### Removed
 
+## [0.4.0] - 2026-08-26
+
+### Added
+- User master entity and role mappings.
+- Fingerprint mapping tables to map eSSL devices to application users.
+- Terminal master entity to map eSSL device IP to a CockpitConsole terminal.
+- Strict 1-hour durable terminal sessions driven by server-time.
+- Fingerprint event processor to intercept durable `essl` events and create sessions.
+- Industrial lock screen (`/lock`) that auto-unlocks via lightweight `/session/status` polling.
+- `TerminalAuthorizationListener` to protect dashboard routes using `APP_TERMINAL_ID` without trusting browser cookies.
+- Session replacement logic and manual dashboard lock endpoint.
+- Authentication audit trail for login approvals and rejections.
+
 ## [0.3.0] - 2026-08-26
 
 ### Added

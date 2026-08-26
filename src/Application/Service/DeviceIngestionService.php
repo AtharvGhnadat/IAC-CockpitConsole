@@ -18,6 +18,7 @@ class DeviceIngestionService
     private RawDeviceEventRecorder $recorder;
     private DeviceRepository $deviceRepository;
     private LoggerInterface $logger;
+    private ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor;
     /** @var array<string, DevicePayloadValidatorInterface> */
     private array $validators;
 
@@ -28,11 +29,13 @@ class DeviceIngestionService
         EsslPayloadValidator $esslValidator,
         PlcPayloadValidator $plcValidator,
         Scanner1PayloadValidator $scanner1Validator,
-        Scanner2PayloadValidator $scanner2Validator
+        Scanner2PayloadValidator $scanner2Validator,
+        ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor = null
     ) {
         $this->recorder = $recorder;
         $this->deviceRepository = $deviceRepository;
         $this->logger = $deviceIngestionLogger;
+        $this->fingerprintProcessor = $fingerprintProcessor;
         
         $this->validators = [
             'essl' => $esslValidator,
@@ -115,6 +118,20 @@ class DeviceIngestionService
                 'source_type' => $sourceType,
                 'event_id' => $event->getId()
             ]);
+            
+            // Synchronously process fingerprint events for Phase 4 
+            // since we don't have background workers running yet.
+            if ($sourceType === 'essl' && $this->fingerprintProcessor) {
+                try {
+                    $this->fingerprintProcessor->process($event);
+                } catch (\Exception $procEx) {
+                    // Do not fail the ingestion if processing fails, 
+                    // event is already stored durably.
+                    $this->logger->error('Synchronous fingerprint processing failed.', [
+                        'error' => $procEx->getMessage()
+                    ]);
+                }
+            }
             
             return $event;
             

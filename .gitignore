@@ -1,0 +1,16 @@
+/vendor/
+.env.local
+.env.*.local
+/var/cache/
+/var/log/
+/var/share/
+/public/bundles/
+/phpunit.xml
+/phpunit.xml.dist
+.idea/
+.vscode/
+*.swp
+*~
+*.log
+/db_dumps/
+/secrets/

@@ -23,6 +23,9 @@ class CockpitState
     private string $total_requested = '0'; // String for BIGINT
 
     #[ORM\Column(type: Types::BIGINT)]
+    private string $total_produced = '0'; // String for BIGINT
+
+    #[ORM\Column(type: Types::BIGINT)]
     private string $current_balance = '0'; // String for BIGINT
 
     #[ORM\Column]
@@ -64,6 +67,17 @@ class CockpitState
     public function setTotalRequested(string $total_requested): static
     {
         $this->total_requested = $total_requested;
+        return $this;
+    }
+
+    public function getTotalProduced(): string
+    {
+        return $this->total_produced;
+    }
+
+    public function setTotalProduced(string $total_produced): static
+    {
+        $this->total_produced = $total_produced;
         return $this;
     }
 

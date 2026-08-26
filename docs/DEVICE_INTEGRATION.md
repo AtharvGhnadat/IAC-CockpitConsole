@@ -38,3 +38,8 @@ In case of validation failures, the detailed reason is logged in `var/log/device
 ## PLC HTTP Endpoint (Phase 5 Business Logic)
 - **Endpoint**: \http://localhost/IAC/cockpitConsole/plcdata.php\ (POST)
 - **Business Interpretation**: One valid event mathematically equates to exactly **+1 request** for the specified cockpit. The processor does not infer batching from the timestamp or other elements. Duplicate ingestion IDs are safely ignored to prevent ledger duplication.
+
+## Scanner1 HTTP Endpoint (Phase 6 Business Logic)
+- **Endpoint**: \http://localhost/IAC/cockpitConsole/plcdata.php\ (POST)
+- **Business Interpretation**: One valid event mathematically equates to exactly **+10 production** (or configured batch size) for the mapped cockpit. Duplicate ingestion IDs are safely ignored.
+- **Scanner2**: Pending implementation.

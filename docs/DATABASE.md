@@ -69,3 +69,7 @@ All schema changes MUST be executed via Doctrine Migrations. Manual schema modif
 ## Phase 5: PLC Processing Tables
 - **\equest_events\**: The durable business ledger of PLC requests. Enforces idempotency via \UNIQUE(device_event_id)\ and \UNIQUE(request_uuid)\. Indexed by \eceived_at\ and \device_timestamp\ to preserve future FIFO ordering.
 - **\cockpit_state\**: Maintains the live snapshot of a cockpit's \	otal_requested\ and \current_balance\. Enforces \UNIQUE(cockpit_id)\. Updates to this table use pessimistic write locks to prevent concurrency race conditions.
+
+## Phase 6: Production Processing Tables
+- **\production_events\**: The durable business ledger of scanner1 production. Enforces idempotency via \UNIQUE(device_event_id)\ and \UNIQUE(production_uuid)\.
+- **\cockpit_state\**: Added \	otal_produced\ to the snapshot. \current_balance\ safely supports negative numbers using a signed BIGINT.

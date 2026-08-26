@@ -27,6 +27,7 @@ class CockpitStateController extends AbstractController
         return $this->json([
             'cockpit' => $cockpitCode,
             'total_requested' => $state ? (int) $state->getTotalRequested() : 0,
+            'total_produced' => $state ? (int) $state->getTotalProduced() : 0,
             'current_balance' => $state ? (int) $state->getCurrentBalance() : 0
         ]);
     }

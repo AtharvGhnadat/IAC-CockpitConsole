@@ -20,6 +20,7 @@ class DeviceIngestionService
     private LoggerInterface $logger;
     private ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor;
     private ?\App\Application\Processing\PlcRequestProcessor $plcProcessor;
+    private ?\App\Application\Processing\Scanner1ProductionProcessor $scanner1Processor;
     /** @var array<string, DevicePayloadValidatorInterface> */
     private array $validators;
 
@@ -32,13 +33,15 @@ class DeviceIngestionService
         Scanner1PayloadValidator $scanner1Validator,
         Scanner2PayloadValidator $scanner2Validator,
         ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor = null,
-        ?\App\Application\Processing\PlcRequestProcessor $plcProcessor = null
+        ?\App\Application\Processing\PlcRequestProcessor $plcProcessor = null,
+        ?\App\Application\Processing\Scanner1ProductionProcessor $scanner1Processor = null
     ) {
         $this->recorder = $recorder;
         $this->deviceRepository = $deviceRepository;
         $this->logger = $deviceIngestionLogger;
         $this->fingerprintProcessor = $fingerprintProcessor;
         $this->plcProcessor = $plcProcessor;
+        $this->scanner1Processor = $scanner1Processor;
         
         $this->validators = [
             'essl' => $esslValidator,
@@ -140,6 +143,17 @@ class DeviceIngestionService
                     $this->plcProcessor->process($event);
                 } catch (\Exception $procEx) {
                     $this->logger->error('Synchronous PLC processing failed.', [
+                        'error' => $procEx->getMessage()
+                    ]);
+                }
+            }
+            
+            // Synchronously process Scanner1 events for Phase 6
+            if ($sourceType === 'scanner1' && $this->scanner1Processor) {
+                try {
+                    $this->scanner1Processor->process($event);
+                } catch (\Exception $procEx) {
+                    $this->logger->error('Synchronous Scanner1 processing failed.', [
                         'error' => $procEx->getMessage()
                     ]);
                 }

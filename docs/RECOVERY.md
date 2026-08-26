@@ -19,3 +19,8 @@ If the system state needs to be restored, we follow this hierarchy of truth:
 If the PLC business processor crashes before completing the transaction, the raw \device_events\ record safely remains unprocessed.
 - **Command**: Run \php bin/console cockpit:process-pending-plc\ to identify any stranded \eceived\ or \ailed\ events and process them safely.
 - **Idempotency**: Because \equest_events\ guarantees uniqueness by \device_event_id\, running this command repeatedly is completely safe and will not inflate the cockpit balance.
+
+## Production State Recovery
+If the production processor crashes before completing the transaction, the raw \device_events\ record safely remains unprocessed.
+- **Command**: Run \php bin/console cockpit:process-pending-production\ to identify any stranded \eceived\ or \ailed\ events and process them safely.
+- **Verification Command**: Run \php bin/console cockpit:verify-production-state\ to mathematically reconcile the snapshot with the ledgers.

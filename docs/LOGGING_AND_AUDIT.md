@@ -11,3 +11,7 @@ Malformed JSON and structurally invalid requests are **not** persisted to the `d
 - \equest_events\: Business history mapping one \device_event\ to one cockpit request (+1).
 - \udit_events\: Stores logical outcomes like \PLC_REQUEST_ACCEPTED\ or \PLC_REQUEST_REJECTED\ with current balance context.
 - \Monolog\: Logs technical details of the transaction, such as skipped duplicate events or transaction rollbacks.
+
+## Phase 6: Production Processing Audit
+- \production_events\: Business history mapping one scanner1 \device_event\ to one cockpit production batch (+10).
+- \udit_events\: Stores \TROLLEY_PRODUCTION_ACCEPTED\ or \TROLLEY_PRODUCTION_REJECTED\ with current mathematical context.

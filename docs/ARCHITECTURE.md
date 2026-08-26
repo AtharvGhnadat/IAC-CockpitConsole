@@ -26,3 +26,8 @@ Authentication is decoupled from traditional HTTP sessions. eSSL device events a
 1. **HTTP Ingestion**: \plcdata.php\ receives raw JSON -> logs exactly to \device_events\ -> returns 200 OK.
 2. **Business Processing**: \PlcRequestProcessor\ (which can run synchronously or via Messenger background queues) picks up the raw \plc\ event.
 3. **Event Generation**: The processor validates the event, writes an idempotent \equest_events\ record, and increments \cockpit_state\ using pessimistic database row locks for safety.
+
+## Phase 6: Production Processing Flow
+1. **HTTP Ingestion**: \plcdata.php\ receives raw JSON -> logs exactly to \device_events\ -> returns 200 OK.
+2. **Business Processing**: \Scanner1ProductionProcessor\ picks up the raw \scanner1\ event.
+3. **Event Generation**: The processor validates the event, maps the model, writes an idempotent \production_events\ record, and decrements \current_balance\ while incrementing \	otal_produced\ using pessimistic database row locks for safety.

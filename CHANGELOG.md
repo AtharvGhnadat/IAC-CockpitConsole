@@ -16,6 +16,19 @@ All notable changes to CockpitConsole will be documented here.
 
 ### Removed
 
+## [0.6.0] - 2026-08-26
+
+### Added
+- `Scanner1ProductionProcessor` to convert raw scanner1 HTTP events into immutable `ProductionEvent` ledgers.
+- `total_produced` tracking in `cockpit_state` with signed `current_balance` supporting mathematical surplus (negative balance).
+- Fixed production batch size validation (default `10` via `.env`).
+- Model-to-cockpit resolution leveraging `cockpit_model_mappings`.
+- Pessimistic write locking on `cockpit_state` to safely process concurrent PLC requests and scanner scans.
+- Strict 1-to-1 idempotency enforcement via `device_event_id` unique constraints.
+- `cockpit:process-pending-production` recovery command to safely process stranded raw events.
+- `cockpit:verify-production-state` command to mathematically reconcile state snapshot against request and production ledgers.
+- Updated read-only API endpoint to return `total_produced`.
+
 ## [0.5.0] - 2026-08-26
 
 ### Added

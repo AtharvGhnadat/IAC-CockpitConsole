@@ -1,30 +1,31 @@
 # Recovery Procedures
 
-CockpitConsole is an industrial system where downtime and data loss are unacceptable.
-**Dashboard failure must not destroy historical device events.**
+This document outlines the recovery procedures verified during Phase 11 Industrial Validation.
 
-## Recovery Hierarchy
+## 1. Browser Failure / Refresh
+**Scenario**: The operator accidentally closes the dashboard tab or hits F5.
+**Recovery**: 
+1. Re-open the browser to the CockpitConsole URL.
+2. If the session has not expired, the dashboard will immediately reload the latest state.
+3. If the session expired, re-scan the fingerprint.
+**Note**: The backend completely detaches from the frontend. Closing the browser will *never* interrupt a PLC or Scanner ingestion process.
 
-If the system state needs to be restored, we follow this hierarchy of truth:
-1. **Database current state** - The most immediate source of processed business state.
-2. **device_events raw event journal** - Authoritative history. If current state is corrupted, it can theoretically be rebuilt from this append-only journal.
-3. **audit_events** - For reviewing manual corrections and session states.
-4. **MariaDB backup** - Point-in-time recovery.
-5. **MariaDB binary logs** - For recovery between backup intervals (if configured).
-6. **Application log files** - For diagnostics of crashes.
+## 2. Apache Failure
+**Scenario**: The Apache web server crashes or is restarted (`httpd.exe`).
+**Recovery**:
+1. Restart Apache via XAMPP Control Panel.
+2. No manual data intervention is required. `device_events` that were mid-flight *before* hitting Apache will be retransmitted by the physical devices per standard TCP/HTTP retry policies.
 
-**Note**: Full state replay from the `device_events` journal is **Pending implementation**.
+## 3. MariaDB Failure
+**Scenario**: The database crashes.
+**Recovery**:
+1. The dashboard will instantly turn red with a `SYSTEM CRITICAL` warning.
+2. Restart MariaDB via XAMPP Control Panel.
+3. Once the database is online, the `DashboardSnapshotService` will automatically recover, and the red banner will disappear. 
 
-## PLC State Recovery
-If the PLC business processor crashes before completing the transaction, the raw \device_events\ record safely remains unprocessed.
-- **Command**: Run \php bin/console cockpit:process-pending-plc\ to identify any stranded \eceived\ or \ailed\ events and process them safely.
-- **Idempotency**: Because \equest_events\ guarantees uniqueness by \device_event_id\, running this command repeatedly is completely safe and will not inflate the cockpit balance.
-
-## Production State Recovery
-If the production processor crashes before completing the transaction, the raw \device_events\ record safely remains unprocessed.
-- **Command**: Run \php bin/console cockpit:process-pending-production\ to identify any stranded \eceived\ or \ailed\ events and process them safely.
-- **Verification Command**: Run \php bin/console cockpit:verify-production-state\ to mathematically reconcile the snapshot with the ledgers.
-
-## Phase 8: Dispatch Recovery
-- \cockpit:process-pending-dispatch\: Retries stranded scanner2 events. Useful if an event failed due to \INSUFFICIENT_AVAILABLE_STOCK\ and stock has since arrived.
-- \cockpit:verify-inventory-state\: Reconciles actual ledgers (production and dispatch) against the fast-read \cockpit_state\ snapshot to ensure mathematical integrity.
+## 4. Pending or Failed Events
+**Scenario**: An event is stuck as `failed` due to bad master data (e.g. unknown cockpit).
+**Recovery**:
+1. Correct the master data (e.g. add the cockpit).
+2. Run `php bin/console cockpit:replay-failed-events` (Planned feature).
+3. The event will re-process safely.

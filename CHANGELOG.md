@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-rc.1] - 2026-08-26
+### Added
+- Final production operational dashboard UI
+- Dynamic responsive CSS Grid layout engine based on database config
+- Dashboard Snapshot API for highly optimized live data polling
+- Dark mode, high-contrast industrial metric panels
+- Stale-data detection & visual system warning banners
+
 ## [0.9.0] - 2026-08-26
 ### Added
 - System health monitoring (Device activity, processing backlogs, database availability)

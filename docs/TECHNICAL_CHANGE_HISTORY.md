@@ -18,3 +18,11 @@
 - **Schema**: Added \device_health\ table linking to \devices\.
 - **Operational Impact**: Operators now see explicit warnings when device data is delayed or database goes offline.
 - **Tests**: SystemHealthServiceTest verifies thresholds and warning/critical transitions.
+
+### Phase 10: Final Production Dashboard
+- **Date**: 2026-08-26
+- **Version**: 1.0.0-rc.1
+- **Components**: DashboardSnapshotService, DashboardApiController, DashboardRow, DashboardColumn
+- **Schema**: Added \dashboard_rows\ and \dashboard_columns\ for dynamic layouts.
+- **Operational Impact**: Operators now have a live, auto-refreshing industrial UI with robust layout logic.
+- **Tests**: Validated snapshot endpoints and dashboard layout endpoints.

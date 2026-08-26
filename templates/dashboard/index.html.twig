@@ -1,75 +1,287 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <title>CockpitConsole - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CockpitConsole - Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: #fff;
-            margin: 0;
-            padding: 20px;
+        :root {
+            --bg-base: #0f1115;
+            --bg-panel: #1a1d24;
+            --bg-panel-hover: #21252d;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-label: #6b7280;
+            --accent-primary: #3b82f6;
+            --status-ok: #10b981;
+            --status-warn: #f59e0b;
+            --status-crit: #ef4444;
+            --status-disabled: #4b5563;
+            --border-color: #2d3139;
+            --panel-radius: 6px;
+            --shadow-glow: 0 0 15px rgba(0,0,0,0.5);
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, monospace;
         }
-        .header {
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .app-header {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
-        .user-info {
-            font-size: 1.2em;
+
+        .header-brand h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
-        .session-info {
-            font-size: 1em;
-            color: #ccc;
-        }
-        .btn-lock {
-            background-color: #d9534f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
+        
+        .header-brand .status-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
             border-radius: 4px;
-            font-size: 1em;
+            margin-left: 10px;
+            background: var(--status-ok);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .header-brand .status-badge.crit { background: var(--status-crit); }
+        .header-brand .status-badge.warn { background: var(--status-warn); }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .meta-item { display: flex; flex-direction: column; align-items: flex-end; }
+        .meta-label { color: var(--text-label); font-size: 0.75rem; text-transform: uppercase; }
+        .meta-value { font-weight: 600; }
+
+        .btn-lock {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
             cursor: pointer;
-            text-decoration: none;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.2s;
         }
-        .content {
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        .btn-lock:hover {
+            background-color: var(--bg-panel-hover);
+            border-color: var(--text-muted);
         }
+
+        /* WARNING BANNER */
+        .system-warning-banner {
+            display: none;
+            background-color: var(--status-warn);
+            color: #000;
+            text-align: center;
+            padding: 0.5rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .system-warning-banner.critical {
+            background-color: var(--status-crit);
+            color: #fff;
+        }
+
+        /* MAIN DASHBOARD CONTAINER */
+        .dashboard-container {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* DASHBOARD ROW */
+        .dashboard-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .row-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .row-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        /* METRIC PANEL */
+        .metric-panel {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--panel-radius);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: border-color 0.2s, transform 0.1s;
+        }
+        
+        .metric-panel:hover {
+            border-color: var(--text-label);
+        }
+
+        .metric-name {
+            font-size: 0.875rem;
+            color: var(--text-label);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .metric-value-container {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-main);
+        }
+
+        .metric-context {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Value Semantic Colors */
+        .val-positive { color: var(--status-ok); }
+        .val-negative { color: var(--status-warn); }
+        .val-zero { color: var(--text-muted); }
+
+        /* Health Panel Specific */
+        .health-status {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .status-HEALTHY, .status-ONLINE { color: var(--status-ok); }
+        .status-WARNING, .status-DELAYED { color: var(--status-warn); }
+        .status-CRITICAL, .status-OFFLINE, .status-ERROR { color: var(--status-crit); }
+        .status-UNKNOWN { color: var(--text-muted); }
+
+        /* FIFO Specific */
+        .queue-list {
+            list-style: none;
+            margin-top: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .queue-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .queue-list li:last-child { border-bottom: none; }
+
+        /* ADMIN CONTROLS */
+        .admin-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-admin {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .btn-admin:hover { background: var(--bg-panel-hover); color: var(--text-main); }
+
     </style>
 </head>
-<body>
-    <div class="header">
-        <div>
-            <h1>CockpitConsole</h1>
-            <div class="user-info">Welcome, {{ session.user.displayName }}</div>
-            <div class="session-info">
-                Role: {{ session.role }} | 
-                Terminal: {{ terminal.terminalName }}
-            </div>
+<body data-controller="dashboard">
+    <div id="system-warning" class="system-warning-banner">
+        <span id="system-warning-text">DATA MAY BE OUTDATED</span>
+    </div>
+
+    <header class="app-header">
+        <div class="header-brand">
+            <h1 style="display:inline-block; margin:0;">CockpitConsole</h1>
+            <span id="header-status-badge" class="status-badge">ONLINE</span>
         </div>
-        <div>
-            <div style="margin-bottom: 10px; text-align: right; color: #aaa;">
-                Expires: <span id="timeRemaining">Calculating...</span>
+        
+        <div class="header-meta">
+            <div class="meta-item">
+                <span class="meta-label">Data Freshness</span>
+                <span class="meta-value" id="last-updated" style="font-family:var(--font-mono); font-size:0.875rem;">Syncing...</span>
             </div>
-            <form action="{{ path('app_session_lock') }}" method="POST">
-                <button type="submit" class="btn-lock">Lock Dashboard</button>
+            <div class="meta-item">
+                <span class="meta-label">Operator</span>
+                <span class="meta-value">{{ session.user.displayName ?? 'Unknown' }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Session Exp</span>
+                <span class="meta-value" id="timeRemaining" style="font-family:var(--font-mono); font-size:0.875rem;">--:--</span>
+            </div>
+            <form action="{{ path('app_session_lock') }}" method="POST" style="margin:0;">
+                <button type="submit" class="btn-lock">LOCK</button>
             </form>
         </div>
-    </div>
+    </header>
 
-    <div class="content">
-        <h2>Production Dashboard (Placeholder)</h2>
-        <p>This is a protected dashboard area. Business components will be implemented in future phases.</p>
-    </div>
+    <main class="dashboard-container" id="dashboard-layout">
+        <!-- Layout injected via JS -->
+    </main>
 
     <script>
+        // Session Timer Logic
         const expiryTime = new Date('{{ session.expiresAt|date('c') }}').getTime();
         
         function updateTimer() {
@@ -78,18 +290,192 @@
             
             if (distance < 0) {
                 document.getElementById('timeRemaining').innerHTML = "EXPIRED";
-                window.location.reload(); // Will trigger redirect to lock
+                window.location.reload(); 
                 return;
             }
             
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
             
-            document.getElementById('timeRemaining').innerHTML = minutes + "m " + seconds + "s";
+            document.getElementById('timeRemaining').innerHTML = String(minutes).padStart(2,'0') + ":" + String(seconds).padStart(2,'0');
         }
         
         setInterval(updateTimer, 1000);
         updateTimer();
+
+        // Dashboard Live Polling Logic
+        let layoutConfig = [];
+        let currentSnapshot = {};
+
+        async function initDashboard() {
+            try {
+                // Fetch Layout
+                const layoutRes = await fetch('/api/dashboard/config');
+                if (layoutRes.ok) {
+                    layoutConfig = await layoutRes.json();
+                    renderLayout();
+                }
+                
+                // Start polling snapshot
+                pollSnapshot();
+                setInterval(pollSnapshot, 1000);
+            } catch (e) {
+                console.error("Dashboard Init Error", e);
+            }
+        }
+
+        async function pollSnapshot() {
+            try {
+                const res = await fetch('/api/dashboard/snapshot');
+                if (res.ok) {
+                    currentSnapshot = await res.json();
+                    updateMetrics();
+                    updateSystemHealth();
+                    document.getElementById('last-updated').innerText = 'Just now';
+                } else {
+                    handleDisconnect();
+                }
+            } catch (e) {
+                handleDisconnect();
+            }
+        }
+
+        function handleDisconnect() {
+            document.getElementById('last-updated').innerText = 'Connection Lost';
+            document.getElementById('last-updated').style.color = 'var(--status-crit)';
+            const badge = document.getElementById('header-status-badge');
+            badge.innerText = 'OFFLINE';
+            badge.className = 'status-badge crit';
+        }
+
+        function updateSystemHealth() {
+            const warningBanner = document.getElementById('system-warning');
+            const warningText = document.getElementById('system-warning-text');
+            const badge = document.getElementById('header-status-badge');
+            
+            document.getElementById('last-updated').style.color = 'var(--text-main)';
+
+            const overall = currentSnapshot.metrics['HEALTH_OVERALL'];
+            
+            if (overall === 'CRITICAL') {
+                warningBanner.style.display = 'block';
+                warningBanner.className = 'system-warning-banner critical';
+                warningText.innerText = 'SYSTEM CRITICAL - DATABASE UNAVAILABLE OR FATAL ERROR';
+                badge.innerText = 'CRITICAL';
+                badge.className = 'status-badge crit';
+            } else if (overall === 'WARNING') {
+                warningBanner.style.display = 'block';
+                warningBanner.className = 'system-warning-banner';
+                warningText.innerText = 'DATA DELAYED - DASHBOARD VALUES MAY BE OUTDATED';
+                badge.innerText = 'WARNING';
+                badge.className = 'status-badge warn';
+            } else {
+                warningBanner.style.display = 'none';
+                badge.innerText = 'HEALTHY';
+                badge.className = 'status-badge';
+            }
+        }
+
+        function renderLayout() {
+            const container = document.getElementById('dashboard-layout');
+            container.innerHTML = '';
+
+            layoutConfig.forEach(row => {
+                const rowEl = document.createElement('div');
+                rowEl.className = 'dashboard-row';
+
+                const header = document.createElement('div');
+                header.className = 'row-header';
+                header.innerHTML = `
+                    <div class="row-title">${row.name}</div>
+                    {% if session.role == 'Admin' %}
+                    <div class="admin-controls">
+                        <button class="btn-admin">Edit Row</button>
+                    </div>
+                    {% endif %}
+                `;
+
+                const grid = document.createElement('div');
+                grid.className = 'row-grid';
+
+                row.columns.forEach(col => {
+                    const panel = document.createElement('div');
+                    panel.className = 'metric-panel';
+                    
+                    let dataKey = col.metric_key;
+                    if (col.cockpit_id) dataKey += '_' + col.cockpit_id;
+                    
+                    panel.innerHTML = `
+                        <div class="metric-name">${col.name}</div>
+                        <div class="metric-value-container">
+                            <div class="metric-value" data-metric="${dataKey}" data-type="${col.metric_key.split('_')[0]}">--</div>
+                            <div class="metric-context" data-context="${dataKey}"></div>
+                        </div>
+                    `;
+                    grid.appendChild(panel);
+                });
+
+                rowEl.appendChild(header);
+                rowEl.appendChild(grid);
+                container.appendChild(rowEl);
+            });
+        }
+
+        function updateMetrics() {
+            if (!currentSnapshot.metrics) return;
+
+            document.querySelectorAll('[data-metric]').forEach(el => {
+                const key = el.getAttribute('data-metric');
+                const type = el.getAttribute('data-type');
+                const val = currentSnapshot.metrics[key];
+                
+                if (val !== undefined) {
+                    if (type === 'HEALTH') {
+                        el.innerText = val;
+                        el.className = 'health-status status-' + val;
+                        
+                        // Hide context for health
+                        const ctxEl = document.querySelector(`[data-context="${key}"]`);
+                        if(ctxEl) ctxEl.innerText = '';
+                    } 
+                    else if (type === 'FIFO' && key !== 'FIFO_QUEUE_SIZE') {
+                        el.innerText = val;
+                        el.style.fontSize = '1.5rem';
+                        el.style.color = 'var(--accent-primary)';
+                    }
+                    else {
+                        // Numeric business metrics
+                        const num = parseInt(val);
+                        if (!isNaN(num)) {
+                            let prefix = '';
+                            let semanticClass = 'val-zero';
+                            let contextText = '';
+
+                            if (key.includes('BALANCE')) {
+                                if (num > 0) { prefix = '+'; semanticClass = 'val-positive'; contextText = 'Pending'; }
+                                else if (num < 0) { semanticClass = 'val-negative'; contextText = 'Extra Produced'; }
+                                else { contextText = 'Balanced'; }
+                            } else {
+                                semanticClass = num > 0 ? 'val-positive' : 'val-zero';
+                            }
+
+                            el.innerText = prefix + num;
+                            el.className = 'metric-value ' + semanticClass;
+                            
+                            const ctxEl = document.querySelector(`[data-context="${key}"]`);
+                            if(ctxEl) {
+                                ctxEl.innerText = contextText;
+                                ctxEl.className = 'metric-context ' + semanticClass;
+                            }
+                        } else {
+                            el.innerText = val;
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initDashboard);
     </script>
 </body>
 </html>

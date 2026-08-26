@@ -73,3 +73,7 @@ All schema changes MUST be executed via Doctrine Migrations. Manual schema modif
 ## Phase 6: Production Processing Tables
 - **\production_events\**: The durable business ledger of scanner1 production. Enforces idempotency via \UNIQUE(device_event_id)\ and \UNIQUE(production_uuid)\.
 - **\cockpit_state\**: Added \	otal_produced\ to the snapshot. \current_balance\ safely supports negative numbers using a signed BIGINT.
+
+## Phase 7: Production Queue Tables
+- **\production_queue\**: Durable tracking of cockpit shortage life-cycles. Uses \idx_fifo_ordering\ composite index for deterministic query performance.
+- **Invariants**: One cockpit logically should have only one \pending\ or \in_production\ entry at any time. Verified via \cockpit:verify-fifo\.

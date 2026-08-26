@@ -16,6 +16,18 @@ All notable changes to CockpitConsole will be documented here.
 
 ### Removed
 
+## [0.7.0] - 2026-08-26
+
+### Added
+- `ProductionQueue` entity and `production_queue` table to track lifecycle of shortages.
+- FIFO ordering engine based on oldest unresolved shortage (`FifoQueueService`).
+- Strict deterministic tie-breaking (`device_timestamp` -> `received_at` -> `device_event_id`).
+- Shortage transition detection in `PlcRequestProcessor` (enters queue when balance transitions to > 0).
+- Shortage resolution detection in `Scanner1ProductionProcessor` (exits queue when balance transitions to <= 0).
+- Next-cockpit lock-in via `POST /api/production/start-next` with pessimistic transaction concurrency protection.
+- Read-only API `GET /api/production/queue` calculating dynamic waiting time.
+- `cockpit:verify-fifo` command to audit queue health against cockpit math.
+
 ## [0.6.0] - 2026-08-26
 
 ### Added

@@ -22,3 +22,11 @@ CockpitConsole business quantities will ultimately be integer-only (positive, ze
 - **Negative Balance**: Over-fulfilled (extra stock on hand).
 - **Unknown Models**: Events mapped to unknown scanner models are marked as failed; the system will NEVER auto-create master data.
 - **Invalid Quantity**: Any quantity other than 10 is rejected.
+
+## FIFO Production Queue (Phase 7)
+- **Entry Rule**: A cockpit enters the FIFO pending queue exactly when its \current_balance\ transitions from \<= 0\ to \> 0\ (i.e. a new unresolved shortage begins).
+- **Age Invariance**: Once in the queue, subsequent requests do NOT reset the FIFO age.
+- **Exit Rule**: A cockpit resolves and exits the queue when its \current_balance\ drops to \<= 0\ (due to production completion).
+- **Tie-Breaking**: Strict deterministic ordering by \pending_device_timestamp ASC\, \pending_received_at ASC\, and \pending_event_id ASC\.
+- **Quantity**: FIFO is purely based on the age of the oldest unresolved shortage. Quantity size does NOT override queue age.
+- **Current Production**: Only one cockpit may be in production at a time. The active cockpit finishes its cycle before the next FIFO cockpit takes over.

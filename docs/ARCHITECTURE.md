@@ -31,3 +31,11 @@ Authentication is decoupled from traditional HTTP sessions. eSSL device events a
 1. **HTTP Ingestion**: \plcdata.php\ receives raw JSON -> logs exactly to \device_events\ -> returns 200 OK.
 2. **Business Processing**: \Scanner1ProductionProcessor\ picks up the raw \scanner1\ event.
 3. **Event Generation**: The processor validates the event, maps the model, writes an idempotent \production_events\ record, and decrements \current_balance\ while incrementing \	otal_produced\ using pessimistic database row locks for safety.
+
+## Phase 7: FIFO Production Flow
+1. **Shortage Detection**: \PlcRequestProcessor\ creates a \ProductionQueue\ entry on shortage.
+2. **FIFO Selector**: \FifoQueueService\ uses Doctrine \ORDER BY\ to pick the next oldest shortage.
+3. **Current/Next**: System explicitly tracks one \in_production\ cockpit and one \
+ext\ cockpit.
+4. **Resolve Shortage**: \Scanner1ProductionProcessor\ resolves the active queue entry upon production.
+All states are database-driven to survive apache restarts and browser closures.

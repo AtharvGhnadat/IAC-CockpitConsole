@@ -108,6 +108,8 @@ class Scanner1ProductionProcessor
             $currentReq = (int) $cockpitState->getTotalRequested();
             $currentProd = (int) $cockpitState->getTotalProduced();
             
+            $oldBal = $currentReq - $currentProd;
+            
             $newProd = $currentProd + $this->batchSize;
             $newBal = $currentReq - $newProd;
 
@@ -135,6 +137,33 @@ class Scanner1ProductionProcessor
             $prodEvent->setProcessedAt($now);
             
             $this->em->persist($prodEvent);
+            
+            // FIFO Queue Integration (Phase 7)
+            if ($oldBal > 0 && $newBal <= 0) {
+                // Shortage resolved. Complete the active queue entry.
+                $query = $this->em->createQuery('SELECT q FROM App\Entity\ProductionQueue q WHERE q.cockpit = :cockpit AND q.status IN (:statuses)')
+                    ->setParameter('cockpit', $cockpit)
+                    ->setParameter('statuses', ['pending', 'selected', 'in_production'])
+                    ->setLockMode(LockMode::PESSIMISTIC_WRITE); // Ensure we lock it securely
+                
+                $queue = $query->getOneOrNullResult();
+                if ($queue) {
+                    $queue->setStatus('completed');
+                    $queue->setCompletedAt($now);
+                    $queue->setUpdatedAt($now);
+                    
+                    // Audit Queue Exit
+                    $queueAudit = new AuditEvent();
+                    $queueAudit->setAction('FIFO_RESOLVED');
+                    $queueAudit->setDescription('Cockpit shortage resolved, exited active FIFO queue.');
+                    $queueAudit->setContext([
+                        'cockpit' => $cockpit->getCockpitCode(),
+                        'queue_uuid' => $queue->getQueueUuid(),
+                        'device_event_id' => $event->getId()
+                    ]);
+                    $this->em->persist($queueAudit);
+                }
+            }
 
             // Mark device event processed
             $event->setProcessingStatus('processed');

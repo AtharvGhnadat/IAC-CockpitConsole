@@ -15,3 +15,8 @@ Malformed JSON and structurally invalid requests are **not** persisted to the `d
 ## Phase 6: Production Processing Audit
 - \production_events\: Business history mapping one scanner1 \device_event\ to one cockpit production batch (+10).
 - \udit_events\: Stores \TROLLEY_PRODUCTION_ACCEPTED\ or \TROLLEY_PRODUCTION_REJECTED\ with current mathematical context.
+
+## Phase 7: FIFO Queue Audit
+- \FIFO_ENTERED\: Shortage began.
+- \FIFO_RESOLVED\: Shortage satisfied.
+- \PRODUCTION_STARTED\: Cockpit selected from queue.

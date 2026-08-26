@@ -13,3 +13,10 @@ If device timestamp and receive timestamp are completely identical, the database
 ## Phase 6 Note
 - **Implementation**: Pending Phase 7.
 - **Dependency**: FIFO will use the transition into positive production requirement (balance > 0) and the oldest unresolved shortage timestamp from the ledger.
+
+## Phase 7: Production Queue Implemented
+- **Entry**: \PlcRequestProcessor\ creates a \ProductionQueue\ entry on shortage.
+- **Exit**: \Scanner1ProductionProcessor\ resolves the queue when \current_balance <= 0\.
+- **Ordering**: \ORDER BY pending_device_timestamp ASC, pending_received_at ASC, pending_event_id ASC\.
+- **Service**: \FifoQueueService\ manages selection.
+- **Verification**: \cockpit:verify-fifo\ ensures queue states match math.

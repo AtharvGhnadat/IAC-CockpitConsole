@@ -96,10 +96,14 @@ class PlcRequestProcessor
 
             // Perform State Math
             $currentReq = (int) $cockpitState->getTotalRequested();
-            $currentBal = (int) $cockpitState->getCurrentBalance();
+            $currentProd = (int) $cockpitState->getTotalProduced();
+            
+            $oldBal = $currentReq - $currentProd;
             
             $cockpitState->setTotalRequested((string)($currentReq + 1));
-            $cockpitState->setCurrentBalance((string)($currentBal + 1));
+            // Balance recalculation
+            $newBal = ($currentReq + 1) - $currentProd;
+            $cockpitState->setCurrentBalance((string)$newBal);
             $cockpitState->setUpdatedAt(new \DateTimeImmutable());
 
             // Create Request Ledger Entry
@@ -108,7 +112,7 @@ class PlcRequestProcessor
             $requestEvent->setDeviceEvent($event);
             $requestEvent->setCockpit($cockpit);
             $requestEvent->setQuantity(1);
-            $requestEvent->setReceivedAt($event->getReceivedAt()); // Preserve microsecond order
+            $requestEvent->setReceivedAt($event->getReceivedAt());
             
             if ($dateTimeStr) {
                 $deviceTime = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $dateTimeStr);
@@ -121,6 +125,31 @@ class PlcRequestProcessor
             $requestEvent->setProcessedAt($now);
             
             $this->em->persist($requestEvent);
+
+            // FIFO Queue Integration (Phase 7)
+            if ($oldBal <= 0 && $newBal > 0) {
+                // Shortage just began. Create active queue entry.
+                $queue = new \App\Entity\ProductionQueue();
+                $queue->setQueueUuid(Uuid::v4()->toRfc4122());
+                $queue->setCockpit($cockpit);
+                $queue->setTriggerRequestEvent($requestEvent);
+                $queue->setPendingDeviceTimestamp($requestEvent->getDeviceTimestamp());
+                $queue->setPendingReceivedAt($requestEvent->getReceivedAt());
+                $queue->setPendingEventId((string)$event->getId()); // Safe to use device_event_id for ordering tie-break
+                
+                $this->em->persist($queue);
+                
+                // Audit Queue Enter
+                $queueAudit = new AuditEvent();
+                $queueAudit->setAction('FIFO_ENTERED');
+                $queueAudit->setDescription('Cockpit shortage began, entered FIFO queue.');
+                $queueAudit->setContext([
+                    'cockpit' => $cockpitCode,
+                    'queue_uuid' => $queue->getQueueUuid(),
+                    'device_event_id' => $event->getId()
+                ]);
+                $this->em->persist($queueAudit);
+            }
 
             // Mark device event processed
             $event->setProcessingStatus('processed');

@@ -9,6 +9,8 @@ use App\Application\Device\Validator\Scanner1PayloadValidator;
 use App\Application\Device\Validator\Scanner2PayloadValidator;
 use App\Application\DTO\DeviceEventEnvelope;
 use App\Entity\DeviceEvent;
+use App\Entity\DeviceHealth;
+use App\Entity\Device;
 use App\Infrastructure\Persistence\RawDeviceEventRecorder;
 use App\Repository\DeviceRepository;
 use Psr\Log\LoggerInterface;
@@ -60,7 +62,36 @@ class DeviceIngestionService
             'source_ip' => $sourceIp
         ]);
 
-        // 1. Basic JSON validation
+        $now = new \DateTimeImmutable();
+        
+        // Setup default device based on source type to allow health tracking
+        $deviceIdentifier = strtoupper($sourceType);
+        $device = $this->deviceRepository->findActiveDeviceByCode($deviceIdentifier);
+        
+        if (!$device) {
+            $device = new Device();
+            $device->setDeviceCode($deviceIdentifier);
+            $device->setDeviceType($sourceType);
+            $device->setIpAddress($sourceIp);
+            $this->deviceRepository->save($device, true);
+            
+            // Also initialize health for the new device
+            $health = new DeviceHealth();
+            $health->setDevice($device);
+            $this->deviceRepository->getEntityManager()->persist($health);
+            $this->deviceRepository->getEntityManager()->flush();
+        }
+
+        // 1. Update last_seen_at
+        $healthRepo = $this->deviceRepository->getEntityManager()->getRepository(DeviceHealth::class);
+        $health = $healthRepo->findOneBy(['device' => $device]);
+        if ($health) {
+            $health->setLastSeenAt($now);
+            $health->setUpdatedAt($now);
+            $this->deviceRepository->getEntityManager()->flush();
+        }
+
+        // 2. Basic JSON validation
         $payload = json_decode($rawJson, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->logger->error('Malformed JSON received.', [
@@ -72,7 +103,7 @@ class DeviceIngestionService
             throw new \InvalidArgumentException('Malformed JSON payload.');
         }
 
-        // 2. Resolve specific validator
+        // 3. Resolve specific validator
         if (!isset($this->validators[$sourceType])) {
             $this->logger->error('Unsupported source type.', [
                 'source_type' => $sourceType,
@@ -82,11 +113,12 @@ class DeviceIngestionService
         }
         $validator = $this->validators[$sourceType];
 
-        // 3. Structural validation
+        // 4. Structural validation
         try {
             $validator->validateStructure($payload);
             $deviceTimestamp = $validator->extractTimestamp($payload);
-            $deviceIdentifier = $validator->extractDeviceIdentifier($payload);
+            // If the payload specifies a different device code (like specific scanner), we can use it, but typically we use the source type as the master device code
+            // $deviceIdentifier = $validator->extractDeviceIdentifier($payload); 
         } catch (\InvalidArgumentException $e) {
             $this->logger->error('Structural validation failed.', [
                 'source_type' => $sourceType,
@@ -97,24 +129,17 @@ class DeviceIngestionService
             throw $e;
         }
 
-        // 4. Resolve device
-        $device = null;
-        if ($deviceIdentifier) {
-            $device = $this->deviceRepository->findActiveDeviceByCode($deviceIdentifier);
-            if (!$device) {
-                $this->logger->warning('Unknown device identity.', [
-                    'source_type' => $sourceType,
-                    'device_identifier' => $deviceIdentifier,
-                    'source_ip' => $sourceIp
-                ]);
-                // Requirement: do not crash. Preserve the event with a nullable device relation.
-            }
+        // 5. Update last_valid_event_at
+        if ($health) {
+            $health->setLastValidEventAt($now);
+            $health->setUpdatedAt($now);
+            $this->deviceRepository->getEntityManager()->flush();
         }
 
-        // 5. Create DTO & Persist
+        // 6. Create DTO & Persist
         $envelope = new DeviceEventEnvelope(
             $sourceType,
-            $payload, // The decoded array, RawDeviceEventRecorder will hash and re-encode deterministically
+            $payload,
             $sourceIp,
             $deviceTimestamp
         );
@@ -128,51 +153,65 @@ class DeviceIngestionService
                 'event_id' => $event->getId()
             ]);
             
-            // Synchronously process fingerprint events for Phase 4 
-            // since we don't have background workers running yet.
-            if ($sourceType === 'essl' && $this->fingerprintProcessor) {
-                try {
+            // Process synchronously
+            $processed = false;
+
+            try {
+                // Synchronous fingerprint processing for Phase 3
+                if ($sourceType === 'essl' && $this->fingerprintProcessor) {
                     $this->fingerprintProcessor->process($event);
-                } catch (\Exception $procEx) {
-                    $this->logger->error('Synchronous fingerprint processing failed.', [
-                        'error' => $procEx->getMessage()
-                    ]);
+                    $processed = true;
                 }
-            }
-            
-            // Synchronously process PLC events for Phase 5
-            if ($sourceType === 'plc' && $this->plcProcessor) {
-                try {
+                
+                // Synchronous process PLC events for Phase 5
+                if ($sourceType === 'plc' && $this->plcProcessor) {
                     $this->plcProcessor->process($event);
-                } catch (\Exception $procEx) {
-                    $this->logger->error('Synchronous PLC processing failed.', [
-                        'error' => $procEx->getMessage()
-                    ]);
+                    $processed = true;
                 }
-            }
-            
-            // Synchronously process Scanner1 events for Phase 6
-            if ($sourceType === 'scanner1' && $this->scanner1Processor) {
-                try {
+                
+                // Synchronously process Scanner1 events for Phase 6
+                if ($sourceType === 'scanner1' && $this->scanner1Processor) {
                     $this->scanner1Processor->process($event);
-                } catch (\Exception $procEx) {
-                    $this->logger->error('Synchronous Scanner1 processing failed.', [
-                        'error' => $procEx->getMessage()
-                    ]);
+                    $processed = true;
                 }
-            }
-            
-            // Synchronously process Scanner2 events for Phase 8
-            if ($sourceType === 'scanner2' && $this->scanner2Processor) {
-                try {
+                
+                // Synchronously process Scanner2 events for Phase 8
+                if ($sourceType === 'scanner2' && $this->scanner2Processor) {
                     $this->scanner2Processor->process($event);
-                } catch (\Exception $procEx) {
-                    $this->logger->error('Synchronous Scanner2 processing failed.', [
-                        'error' => $procEx->getMessage()
-                    ]);
+                    $processed = true;
+                }
+                
+                // 7. Check for failures and update health
+                if ($health) {
+                    if ($event->getProcessingStatus() === 'failed') {
+                        $errorData = json_decode($event->getProcessingError() ?? '{}', true);
+                        $health->setLastErrorAt($now);
+                        $health->setLastErrorCode($errorData['code'] ?? 'UNKNOWN_ERROR');
+                        $health->incrementConsecutiveFailures();
+                        $health->setUpdatedAt($now);
+                    } elseif ($processed) {
+                        $health->setLastProcessedAt($now);
+                        $health->resetConsecutiveFailures();
+                        $health->setUpdatedAt($now);
+                    }
+                    $this->deviceRepository->getEntityManager()->flush();
+                }
+                
+            } catch (\Exception $procEx) {
+                $this->logger->error('Synchronous processing failed.', [
+                    'error' => $procEx->getMessage(),
+                    'source' => $sourceType
+                ]);
+                
+                if ($health) {
+                    $health->setLastErrorAt($now);
+                    $health->setLastErrorCode('PROCESSING_EXCEPTION');
+                    $health->incrementConsecutiveFailures();
+                    $health->setUpdatedAt($now);
+                    $this->deviceRepository->getEntityManager()->flush();
                 }
             }
-            
+
             return $event;
             
         } catch (\Exception $e) {

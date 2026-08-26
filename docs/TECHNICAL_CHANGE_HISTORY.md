@@ -10,3 +10,11 @@
 | 2026-08-26 | 0.6.0 | Trolley Production Engine | Phase 6 implementation | Scanner1ProductionProcessor, ProductionEvent | Table production_events, cockpit_state.total_produced | Fixed batch size of 10 configuration. Signed negative balance for current_balance. Idempotent processing. Row locking against race conditions. | None | Verification commands added | src/Entity/*, src/Application/Processing/*, src/Command/* |
 | 2026-08-26 | 0.7.0 | FIFO Production Queue | Phase 7 implementation | ProductionQueue, FifoQueueService | Table production_queue | Deterministic ordering using timestamps and event ID. | None | Verify command added | src/Entity/*, src/Application/Service/*, src/Command/* |
 | 2026-08-26 | 0.8.0 | Scanner 2 Dispatch | Phase 8 implementation | DispatchEvent, Scanner2DispatchProcessor | Table dispatch_events, cockpit_state.total_dispatched, cockpit_state.available_stock | Dispatch processing, Available stock tracking, Stock protection. | None | ProcessPendingDispatchCommand, VerifyInventoryStateCommand | src/Entity/*, src/Application/*, src/Command/* |
+
+### Phase 9: System Health Monitoring
+- **Date**: 2026-08-26
+- **Version**: 0.9.0
+- **Components**: SystemHealthService, DeviceHealth entity, HealthApiController, SystemHealthCommand
+- **Schema**: Added \device_health\ table linking to \devices\.
+- **Operational Impact**: Operators now see explicit warnings when device data is delayed or database goes offline.
+- **Tests**: SystemHealthServiceTest verifies thresholds and warning/critical transitions.

@@ -16,6 +16,17 @@ All notable changes to CockpitConsole will be documented here.
 
 ### Removed
 
+## [0.5.0] - 2026-08-26
+
+### Added
+- `PlcRequestProcessor` to convert raw PLC HTTP events into business-level request ledgers.
+- `RequestEvent` immutable ledger table enforcing 1-to-1 processing idempotency.
+- `CockpitState` table to maintain the fast read-optimized snapshot of `total_requested` and `current_balance`.
+- Pessimistic write locking on `cockpit_state` to prevent race conditions during concurrent PLC events.
+- `cockpit:process-pending-plc` recovery command to safely reprocess stranded raw events without duplicates.
+- `GET /api/cockpits/{cockpitCode}/state` endpoint to read the current mathematical snapshot.
+- Synchronous hook in `DeviceIngestionService` for real-time PLC processing without background queue dependencies.
+
 ## [0.4.0] - 2026-08-26
 
 ### Added

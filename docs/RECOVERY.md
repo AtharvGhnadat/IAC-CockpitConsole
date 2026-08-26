@@ -14,3 +14,8 @@ If the system state needs to be restored, we follow this hierarchy of truth:
 6. **Application log files** - For diagnostics of crashes.
 
 **Note**: Full state replay from the `device_events` journal is **Pending implementation**.
+
+## PLC State Recovery
+If the PLC business processor crashes before completing the transaction, the raw \device_events\ record safely remains unprocessed.
+- **Command**: Run \php bin/console cockpit:process-pending-plc\ to identify any stranded \eceived\ or \ailed\ events and process them safely.
+- **Idempotency**: Because \equest_events\ guarantees uniqueness by \device_event_id\, running this command repeatedly is completely safe and will not inflate the cockpit balance.

@@ -21,3 +21,8 @@ The HTTP receivers acknowledge only after the raw event is durably committed to 
 
 ## Authentication Architecture
 Authentication is decoupled from traditional HTTP sessions. eSSL device events are parsed by FingerprintEventProcessor to authorize a physical Terminal rather than a browser session. See [AUTHENTICATION.md](AUTHENTICATION.md) for details.
+
+## Phase 5: PLC Processing Flow
+1. **HTTP Ingestion**: \plcdata.php\ receives raw JSON -> logs exactly to \device_events\ -> returns 200 OK.
+2. **Business Processing**: \PlcRequestProcessor\ (which can run synchronously or via Messenger background queues) picks up the raw \plc\ event.
+3. **Event Generation**: The processor validates the event, writes an idempotent \equest_events\ record, and increments \cockpit_state\ using pessimistic database row locks for safety.

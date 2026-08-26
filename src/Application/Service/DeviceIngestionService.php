@@ -19,6 +19,7 @@ class DeviceIngestionService
     private DeviceRepository $deviceRepository;
     private LoggerInterface $logger;
     private ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor;
+    private ?\App\Application\Processing\PlcRequestProcessor $plcProcessor;
     /** @var array<string, DevicePayloadValidatorInterface> */
     private array $validators;
 
@@ -30,12 +31,14 @@ class DeviceIngestionService
         PlcPayloadValidator $plcValidator,
         Scanner1PayloadValidator $scanner1Validator,
         Scanner2PayloadValidator $scanner2Validator,
-        ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor = null
+        ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor = null,
+        ?\App\Application\Processing\PlcRequestProcessor $plcProcessor = null
     ) {
         $this->recorder = $recorder;
         $this->deviceRepository = $deviceRepository;
         $this->logger = $deviceIngestionLogger;
         $this->fingerprintProcessor = $fingerprintProcessor;
+        $this->plcProcessor = $plcProcessor;
         
         $this->validators = [
             'essl' => $esslValidator,
@@ -125,9 +128,18 @@ class DeviceIngestionService
                 try {
                     $this->fingerprintProcessor->process($event);
                 } catch (\Exception $procEx) {
-                    // Do not fail the ingestion if processing fails, 
-                    // event is already stored durably.
                     $this->logger->error('Synchronous fingerprint processing failed.', [
+                        'error' => $procEx->getMessage()
+                    ]);
+                }
+            }
+            
+            // Synchronously process PLC events for Phase 5
+            if ($sourceType === 'plc' && $this->plcProcessor) {
+                try {
+                    $this->plcProcessor->process($event);
+                } catch (\Exception $procEx) {
+                    $this->logger->error('Synchronous PLC processing failed.', [
                         'error' => $procEx->getMessage()
                     ]);
                 }

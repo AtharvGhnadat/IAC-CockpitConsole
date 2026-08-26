@@ -34,3 +34,7 @@ All HTTP endpoints expect `POST` requests with `Content-Type: application/json`.
 - `500 Internal Server Error`: Persistence failure.
 
 In case of validation failures, the detailed reason is logged in `var/log/device_ingestion_prod.log`.
+
+## PLC HTTP Endpoint (Phase 5 Business Logic)
+- **Endpoint**: \http://localhost/IAC/cockpitConsole/plcdata.php\ (POST)
+- **Business Interpretation**: One valid event mathematically equates to exactly **+1 request** for the specified cockpit. The processor does not infer batching from the timestamp or other elements. Duplicate ingestion IDs are safely ignored to prevent ledger duplication.

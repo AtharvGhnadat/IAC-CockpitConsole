@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stale-data detection & visual system warning banners
 - Phase 11: Validation suite, failure simulations, and recovery documentation
 - Formal Acceptance Testing Matrix and Test plans
+- Phase 12: PowerShell deployment, backup, and restore scripts (`scripts/`)
+- Comprehensive Go-Live and Operational Checklists (`docs/OPERATIONS/`)
 
 ## [0.9.0] - 2026-08-26
 ### Added

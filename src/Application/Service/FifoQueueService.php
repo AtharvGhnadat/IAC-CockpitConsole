@@ -98,7 +98,7 @@ class FifoQueueService
 
             // Audit
             $audit = new AuditEvent();
-            $audit->setAction('PRODUCTION_STARTED');
+            $audit->setEventType('PRODUCTION_STARTED');
             $audit->setDescription('FIFO Queue selected for production.');
             $audit->setContext([
                 'cockpit' => $nextQueue->getCockpit()->getCockpitCode(),

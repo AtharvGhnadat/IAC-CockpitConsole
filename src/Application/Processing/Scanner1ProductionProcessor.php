@@ -154,7 +154,7 @@ class Scanner1ProductionProcessor
                     
                     // Audit Queue Exit
                     $queueAudit = new AuditEvent();
-                    $queueAudit->setAction('FIFO_RESOLVED');
+                    $queueAudit->setEventType('FIFO_RESOLVED');
                     $queueAudit->setDescription('Cockpit shortage resolved, exited active FIFO queue.');
                     $queueAudit->setContext([
                         'cockpit' => $cockpit->getCockpitCode(),
@@ -171,7 +171,7 @@ class Scanner1ProductionProcessor
 
             // Audit
             $audit = new AuditEvent();
-            $audit->setAction('TROLLEY_PRODUCTION_ACCEPTED');
+            $audit->setEventType('TROLLEY_PRODUCTION_ACCEPTED');
             $audit->setDescription('Processed Scanner1 event and updated production balance.');
             $audit->setContext([
                 'device_event_id' => $event->getId(),
@@ -213,7 +213,7 @@ class Scanner1ProductionProcessor
         $event->setLastError($reason . ': ' . $details);
         
         $audit = new AuditEvent();
-        $audit->setAction('TROLLEY_PRODUCTION_REJECTED');
+        $audit->setEventType('TROLLEY_PRODUCTION_REJECTED');
         $audit->setDescription($reason);
         $audit->setContext([
             'device_event_id' => $event->getId(),

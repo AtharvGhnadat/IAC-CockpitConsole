@@ -40,7 +40,7 @@ class Scanner2DispatchProcessor
             return;
         }
 
-        $payload = $event->getPayload();
+        $payload = $event->getRawPayload();
         
         $modelStr = $payload['model'] ?? null;
         $quantityRaw = $payload['quantity'] ?? null;
@@ -141,7 +141,7 @@ class Scanner2DispatchProcessor
 
             // 8. Write Audit
             $audit = new AuditEvent();
-            $audit->setAction('DISPATCH_ACCEPTED');
+            $audit->setEventType('DISPATCH_ACCEPTED');
             $audit->setDescription('Finished product successfully dispatched.');
             $audit->setContext([
                 'cockpit' => $cockpit->getCockpitCode(),
@@ -178,7 +178,7 @@ class Scanner2DispatchProcessor
     private function markFailed(DeviceEvent $event, string $errorCode, string $details): void
     {
         $event->setProcessingStatus('failed');
-        $event->setProcessingError(json_encode([
+        $event->setLastError(json_encode([
             'code' => $errorCode,
             'details' => $details
         ]));
@@ -195,7 +195,7 @@ class Scanner2DispatchProcessor
         // Also log to audit if it's a business rejection
         if (in_array($errorCode, ['INSUFFICIENT_AVAILABLE_STOCK', 'INVALID_DISPATCH_QUANTITY', 'UNKNOWN_MODEL'])) {
             $audit = new AuditEvent();
-            $audit->setAction('DISPATCH_REJECTED');
+            $audit->setEventType('DISPATCH_REJECTED');
             $audit->setDescription('Dispatch was rejected during business validation.');
             $audit->setContext([
                 'device_event_id' => $event->getId(),

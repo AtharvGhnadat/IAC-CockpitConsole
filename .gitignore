@@ -14,3 +14,9 @@
 *.log
 /db_dumps/
 /secrets/
+
+# Local tooling (not part of the project source)
+composer.phar
+composer-setup.php
+phpstan.phar
+phpstan.neon

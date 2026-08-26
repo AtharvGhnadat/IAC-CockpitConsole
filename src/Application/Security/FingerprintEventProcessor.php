@@ -41,7 +41,7 @@ class FingerprintEventProcessor
         }
 
         // 1. Idempotency Check
-        $existingSession = $this->sessionRepo->findActiveSessionByEventId($event->getId());
+        $existingSession = $this->sessionRepo->findActiveSessionByEventId((int) $event->getId());
         if ($existingSession) {
             $this->logger->info('Event already processed into a session, skipping.', [
                 'event_id' => $event->getId()
@@ -148,7 +148,7 @@ class FingerprintEventProcessor
         ]);
 
         $audit = new AuditEvent();
-        $audit->setAction('FINGERPRINT_REJECTED');
+        $audit->setEventType('FINGERPRINT_REJECTED');
         $audit->setDescription($reason);
         $audit->setContext([
             'event_uuid' => $event->getEventUuid(),
@@ -163,7 +163,7 @@ class FingerprintEventProcessor
     private function createAuditEvent(string $action, string $description, array $context, \App\Entity\User $user = null): void
     {
         $audit = new AuditEvent();
-        $audit->setAction($action);
+        $audit->setEventType($action);
         $audit->setDescription($description);
         $audit->setContext($context);
         

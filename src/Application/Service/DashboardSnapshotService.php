@@ -64,13 +64,13 @@ class DashboardSnapshotService
 
             // FIFO Metrics
             $current = $this->queueRepo->findCurrentProductionCockpit();
-            $snapshot['metrics']['FIFO_CURRENT'] = $current ? $current->getCockpit()->getName() : 'None';
+            $snapshot['metrics']['FIFO_CURRENT'] = $current ? $current->getCockpit()->getCockpitName() : 'None';
             
             $next = $this->queueRepo->findOneBy(
                 ['status' => 'pending'],
                 ['created_at' => 'ASC']
             );
-            $snapshot['metrics']['FIFO_NEXT'] = $next ? $next->getCockpit()->getName() : 'None';
+            $snapshot['metrics']['FIFO_NEXT'] = $next ? $next->getCockpit()->getCockpitName() : 'None';
             
             $queueCount = $this->queueRepo->count(['status' => 'pending']);
             $snapshot['metrics']['FIFO_QUEUE_SIZE'] = $queueCount;
@@ -81,7 +81,7 @@ class DashboardSnapshotService
             foreach ($queueItems as $q) {
                 $ageMinutes = (int) floor((time() - $q->getCreatedAt()->getTimestamp()) / 60);
                 $snapshot['queue'][] = [
-                    'cockpit' => $q->getCockpit()->getName(),
+                    'cockpit' => $q->getCockpit()->getCockpitName(),
                     'waiting_minutes' => $ageMinutes
                 ];
             }

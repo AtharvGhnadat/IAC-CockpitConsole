@@ -141,7 +141,7 @@ class PlcRequestProcessor
                 
                 // Audit Queue Enter
                 $queueAudit = new AuditEvent();
-                $queueAudit->setAction('FIFO_ENTERED');
+                $queueAudit->setEventType('FIFO_ENTERED');
                 $queueAudit->setDescription('Cockpit shortage began, entered FIFO queue.');
                 $queueAudit->setContext([
                     'cockpit' => $cockpitCode,
@@ -157,7 +157,7 @@ class PlcRequestProcessor
 
             // Audit
             $audit = new AuditEvent();
-            $audit->setAction('PLC_REQUEST_ACCEPTED');
+            $audit->setEventType('PLC_REQUEST_ACCEPTED');
             $audit->setDescription('Processed PLC event and incremented cockpit balance.');
             $audit->setContext([
                 'device_event_id' => $event->getId(),
@@ -202,7 +202,7 @@ class PlcRequestProcessor
         $event->setLastError($reason . ': ' . $details);
         
         $audit = new AuditEvent();
-        $audit->setAction('PLC_REQUEST_REJECTED');
+        $audit->setEventType('PLC_REQUEST_REJECTED');
         $audit->setDescription($reason);
         $audit->setContext([
             'device_event_id' => $event->getId(),

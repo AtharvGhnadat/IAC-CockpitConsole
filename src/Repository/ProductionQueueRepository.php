@@ -20,4 +20,18 @@ class ProductionQueueRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ProductionQueue::class);
     }
+
+    /**
+     * Find the currently active production queue entry (status = 'in_production').
+     */
+    public function findCurrentProductionCockpit(): ?ProductionQueue
+    {
+        return $this->createQueryBuilder('pq')
+            ->andWhere('pq.status = :status')
+            ->setParameter('status', 'in_production')
+            ->orderBy('pq.started_at', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

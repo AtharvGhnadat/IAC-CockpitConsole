@@ -184,7 +184,7 @@ class DeviceIngestionService
                 // 7. Check for failures and update health
                 if ($health) {
                     if ($event->getProcessingStatus() === 'failed') {
-                        $errorData = json_decode($event->getProcessingError() ?? '{}', true);
+                        $errorData = json_decode($event->getLastError() ?? '{}', true);
                         $health->setLastErrorAt($now);
                         $health->setLastErrorCode($errorData['code'] ?? 'UNKNOWN_ERROR');
                         $health->incrementConsecutiveFailures();

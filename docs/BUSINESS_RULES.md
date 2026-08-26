@@ -30,3 +30,9 @@ CockpitConsole business quantities will ultimately be integer-only (positive, ze
 - **Tie-Breaking**: Strict deterministic ordering by \pending_device_timestamp ASC\, \pending_received_at ASC\, and \pending_event_id ASC\.
 - **Quantity**: FIFO is purely based on the age of the oldest unresolved shortage. Quantity size does NOT override queue age.
 - **Current Production**: Only one cockpit may be in production at a time. The active cockpit finishes its cycle before the next FIFO cockpit takes over.
+
+## Final Inventory Stock (Phase 8)
+- **Total Dispatched**: Cumulative completed dispatch from scanner2.
+- **Available Stock**: \Total Produced - Total Dispatched\.
+- **Stock Protection Rule**: Products cannot be dispatched if \Available Stock < Dispatch Batch Size\. Negative available stock is strictly prevented.
+- **Dispatch Independence**: Dispatching finished goods does NOT modify \Total Produced\, \Current Balance\, or the FIFO production queue.

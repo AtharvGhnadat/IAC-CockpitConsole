@@ -21,6 +21,7 @@ class DeviceIngestionService
     private ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor;
     private ?\App\Application\Processing\PlcRequestProcessor $plcProcessor;
     private ?\App\Application\Processing\Scanner1ProductionProcessor $scanner1Processor;
+    private ?\App\Application\Processing\Scanner2DispatchProcessor $scanner2Processor;
     /** @var array<string, DevicePayloadValidatorInterface> */
     private array $validators;
 
@@ -34,7 +35,8 @@ class DeviceIngestionService
         Scanner2PayloadValidator $scanner2Validator,
         ?\App\Application\Security\FingerprintEventProcessor $fingerprintProcessor = null,
         ?\App\Application\Processing\PlcRequestProcessor $plcProcessor = null,
-        ?\App\Application\Processing\Scanner1ProductionProcessor $scanner1Processor = null
+        ?\App\Application\Processing\Scanner1ProductionProcessor $scanner1Processor = null,
+        ?\App\Application\Processing\Scanner2DispatchProcessor $scanner2Processor = null
     ) {
         $this->recorder = $recorder;
         $this->deviceRepository = $deviceRepository;
@@ -42,6 +44,7 @@ class DeviceIngestionService
         $this->fingerprintProcessor = $fingerprintProcessor;
         $this->plcProcessor = $plcProcessor;
         $this->scanner1Processor = $scanner1Processor;
+        $this->scanner2Processor = $scanner2Processor;
         
         $this->validators = [
             'essl' => $esslValidator,
@@ -154,6 +157,17 @@ class DeviceIngestionService
                     $this->scanner1Processor->process($event);
                 } catch (\Exception $procEx) {
                     $this->logger->error('Synchronous Scanner1 processing failed.', [
+                        'error' => $procEx->getMessage()
+                    ]);
+                }
+            }
+            
+            // Synchronously process Scanner2 events for Phase 8
+            if ($sourceType === 'scanner2' && $this->scanner2Processor) {
+                try {
+                    $this->scanner2Processor->process($event);
+                } catch (\Exception $procEx) {
+                    $this->logger->error('Synchronous Scanner2 processing failed.', [
                         'error' => $procEx->getMessage()
                     ]);
                 }

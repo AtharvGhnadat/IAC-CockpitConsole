@@ -39,3 +39,10 @@ Authentication is decoupled from traditional HTTP sessions. eSSL device events a
 ext\ cockpit.
 4. **Resolve Shortage**: \Scanner1ProductionProcessor\ resolves the active queue entry upon production.
 All states are database-driven to survive apache restarts and browser closures.
+
+## Phase 8: Final Inventory Flow
+PLC -> Total Requested (Demand)
+Scanner1 -> Total Produced (Supply)
+Scanner2 -> Total Dispatched (Outbound)
+- **Balance** = Requested - Produced
+- **Available** = Produced - Dispatched

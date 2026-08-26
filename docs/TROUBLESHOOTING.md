@@ -12,3 +12,9 @@
 ## FIFO Queue Issues
 - **Missing Cockpit from Queue**: Run \cockpit:verify-fifo\ to check if a cockpit has a positive balance but no queue entry. If so, manual intervention is needed to reconstruct its queue entry using the oldest PLC request.
 - **Two active cockpits**: The system uses \LockMode::PESSIMISTIC_WRITE\. If two cockpits are ever in production, check MariaDB transaction logs. Run \cockpit:verify-fifo\ to identify them.
+
+## Scanner2 Dispatch Issues
+- **Scanner2 scanned but count did not increase**: Ensure \Available Stock >= 10\. If it failed for stock, it will retry safely with \cockpit:process-pending-dispatch\ once production arrives.
+- **Unknown Dispatch Model**: Event retained. Map the model and retry.
+- **Duplicate Event**: System skips silently due to idempotency.
+- **Available stock mismatch**: Run \cockpit:verify-inventory-state\ to identify discrepancies.

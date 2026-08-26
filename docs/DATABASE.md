@@ -77,3 +77,7 @@ All schema changes MUST be executed via Doctrine Migrations. Manual schema modif
 ## Phase 7: Production Queue Tables
 - **\production_queue\**: Durable tracking of cockpit shortage life-cycles. Uses \idx_fifo_ordering\ composite index for deterministic query performance.
 - **Invariants**: One cockpit logically should have only one \pending\ or \in_production\ entry at any time. Verified via \cockpit:verify-fifo\.
+
+## Phase 8: Dispatch Ledger
+- **\dispatch_events\**: Immutable ledger mapping scanner2 events to stock reduction. Enforces idempotency via \UNIQUE(device_event_id)\.
+- **\cockpit_state\**: Added \	otal_dispatched\ and \vailable_stock\. Both are non-negative \BIGINT\.

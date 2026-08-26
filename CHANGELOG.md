@@ -16,6 +16,20 @@ All notable changes to CockpitConsole will be documented here.
 
 ### Removed
 
+## [0.8.0] - 2026-08-26
+
+### Added
+- `DispatchEvent` entity and `dispatch_events` table for durable scanner2 ledger.
+- `total_dispatched` and `available_stock` to `CockpitState` table.
+- `Scanner2DispatchProcessor` to handle business logic for finished goods dispatch.
+- Strict inventory protection: Dispatches are rejected if `Available Stock < Batch Size`.
+- Safe idempotency checking for scanner2 device events.
+- Concurrency protection via row-level locking on `CockpitState`.
+- `cockpit:process-pending-dispatch` command to safely retry stranded scanner2 events.
+- `cockpit:verify-inventory-state` command to reconcile mathematical integrity.
+- `GET /api/production/summary` for aggregate stats.
+- `GET /api/dispatch/recent` for historical dispatch tracking.
+
 ## [0.7.0] - 2026-08-26
 
 ### Added

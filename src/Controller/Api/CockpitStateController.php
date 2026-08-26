@@ -28,6 +28,8 @@ class CockpitStateController extends AbstractController
             'cockpit' => $cockpitCode,
             'total_requested' => $state ? (int) $state->getTotalRequested() : 0,
             'total_produced' => $state ? (int) $state->getTotalProduced() : 0,
+            'total_dispatched' => $state ? (int) $state->getTotalDispatched() : 0,
+            'available_stock' => $state ? (int) $state->getAvailableStock() : 0,
             'current_balance' => $state ? (int) $state->getCurrentBalance() : 0
         ]);
     }

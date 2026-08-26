@@ -11,3 +11,6 @@
 
 ## FIFO Testing (Phase 7)
 - \	ests/Integration/Queue/FifoQueueServiceTest.php\ ensures deterministic tie-breaking and concurrency lock rejection.
+
+## Phase 8: Dispatch Testing
+- \Scanner2DispatchProcessorTest\: Ensures negative stock is impossible, quantity validation, and idempotency.

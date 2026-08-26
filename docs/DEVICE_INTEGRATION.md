@@ -43,3 +43,7 @@ In case of validation failures, the detailed reason is logged in `var/log/device
 - **Endpoint**: \http://localhost/IAC/cockpitConsole/plcdata.php\ (POST)
 - **Business Interpretation**: One valid event mathematically equates to exactly **+10 production** (or configured batch size) for the mapped cockpit. Duplicate ingestion IDs are safely ignored.
 - **Scanner2**: Pending implementation.
+
+## Scanner2 HTTP Endpoint (Phase 8)
+- **Endpoint**: \http://localhost/IAC/cockpitConsole/plcdata.php\ (POST)
+- **Source**: \scanner2\`n- **Business Logic**: Dispatches finished goods if sufficient \Available Stock\ exists. Reject safely if stock is insufficient, preserving event for retry.

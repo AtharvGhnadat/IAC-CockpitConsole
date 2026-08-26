@@ -20,3 +20,9 @@ Malformed JSON and structurally invalid requests are **not** persisted to the `d
 - \FIFO_ENTERED\: Shortage began.
 - \FIFO_RESOLVED\: Shortage satisfied.
 - \PRODUCTION_STARTED\: Cockpit selected from queue.
+
+## Phase 8: Dispatch Audit
+- \DISPATCH_ACCEPTED\: Goods successfully left inventory.
+- \DISPATCH_REJECTED\: Business validation failed (e.g. \INSUFFICIENT_AVAILABLE_STOCK\, \INVALID_DISPATCH_QUANTITY\).
+- \DISPATCH_PROCESSING_FAILED\: Technical error.
+- \INVENTORY_STATE_UPDATED\: Manual reconciliation adjustments (if applicable).

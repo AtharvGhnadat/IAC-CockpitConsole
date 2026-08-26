@@ -24,3 +24,7 @@ If the PLC business processor crashes before completing the transaction, the raw
 If the production processor crashes before completing the transaction, the raw \device_events\ record safely remains unprocessed.
 - **Command**: Run \php bin/console cockpit:process-pending-production\ to identify any stranded \eceived\ or \ailed\ events and process them safely.
 - **Verification Command**: Run \php bin/console cockpit:verify-production-state\ to mathematically reconcile the snapshot with the ledgers.
+
+## Phase 8: Dispatch Recovery
+- \cockpit:process-pending-dispatch\: Retries stranded scanner2 events. Useful if an event failed due to \INSUFFICIENT_AVAILABLE_STOCK\ and stock has since arrived.
+- \cockpit:verify-inventory-state\: Reconciles actual ledgers (production and dispatch) against the fast-read \cockpit_state\ snapshot to ensure mathematical integrity.

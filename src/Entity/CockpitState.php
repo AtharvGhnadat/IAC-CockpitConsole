@@ -22,11 +22,17 @@ class CockpitState
     #[ORM\Column(type: Types::BIGINT)]
     private string $total_requested = '0'; // String for BIGINT
 
-    #[ORM\Column(type: Types::BIGINT)]
-    private string $total_produced = '0'; // String for BIGINT
+    #[ORM\Column(type: Types::BIGINT, options: ['default' => 0])]
+    private string $total_produced = '0';
 
-    #[ORM\Column(type: Types::BIGINT)]
-    private string $current_balance = '0'; // String for BIGINT
+    #[ORM\Column(type: Types::BIGINT, options: ['default' => 0])]
+    private string $total_dispatched = '0';
+
+    #[ORM\Column(type: Types::BIGINT, options: ['default' => 0])]
+    private string $available_stock = '0';
+
+    #[ORM\Column(type: Types::BIGINT, options: ['default' => 0])]
+    private string $current_balance = '0';
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -78,6 +84,28 @@ class CockpitState
     public function setTotalProduced(string $total_produced): static
     {
         $this->total_produced = $total_produced;
+        return $this;
+    }
+
+    public function getTotalDispatched(): string
+    {
+        return $this->total_dispatched;
+    }
+
+    public function setTotalDispatched(string $total_dispatched): static
+    {
+        $this->total_dispatched = $total_dispatched;
+        return $this;
+    }
+
+    public function getAvailableStock(): string
+    {
+        return $this->available_stock;
+    }
+
+    public function setAvailableStock(string $available_stock): static
+    {
+        $this->available_stock = $available_stock;
         return $this;
     }
 

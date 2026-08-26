@@ -69,8 +69,12 @@ class VerifyProductionStateCommand extends Command
                 $io->error(\sprintf(
                     "Discrepancy for Cockpit '%s':\nExpected: Req=%d, Prod=%d, Bal=%d\nActual  : Req=%d, Prod=%d, Bal=%d",
                     $state->getCockpit()->getCockpitCode(),
-                    $requestSum, $productionSum, $expectedBalance,
-                    $actualReq, $actualProd, $actualBal,
+                    $requestSum,
+                    $productionSum,
+                    $expectedBalance,
+                    $actualReq,
+                    $actualProd,
+                    $actualBal,
                 ));
             }
         }

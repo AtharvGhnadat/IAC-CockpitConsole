@@ -20,3 +20,6 @@ composer.phar
 composer-setup.php
 phpstan.phar
 phpstan.neon
+phpcs.phar
+phpcbf.phar
+.php-cs-fixer.cache

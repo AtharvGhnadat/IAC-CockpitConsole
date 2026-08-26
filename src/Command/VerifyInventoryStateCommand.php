@@ -70,8 +70,12 @@ class VerifyInventoryStateCommand extends Command
                 $io->error(\sprintf(
                     "Discrepancy for Cockpit '%s':\nExpected: Prod=%d, Disp=%d, Avail=%d\nActual  : Prod=%d, Disp=%d, Avail=%d",
                     $state->getCockpit()->getCockpitCode(),
-                    $productionSum, $dispatchSum, $expectedAvailable,
-                    $actualProd, $actualDisp, $actualAvail,
+                    $productionSum,
+                    $dispatchSum,
+                    $expectedAvailable,
+                    $actualProd,
+                    $actualDisp,
+                    $actualAvail,
                 ));
             }
         }

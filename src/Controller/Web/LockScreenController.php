@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Web;
 
 use App\Repository\TerminalRepository;
@@ -13,7 +15,7 @@ class LockScreenController extends AbstractController
     #[Route('/lock', name: 'app_lock_screen')]
     public function index(
         TerminalRepository $terminalRepo,
-        TerminalSessionRepository $sessionRepo
+        TerminalSessionRepository $sessionRepo,
     ): Response {
         $terminalCode = $_ENV['APP_TERMINAL_ID'] ?? 'TERMINAL-01';
         $terminal = $terminalRepo->findOneBy(['terminal_code' => $terminalCode, 'is_active' => true]);
@@ -28,7 +30,7 @@ class LockScreenController extends AbstractController
 
         return $this->render('security/lock.html.twig', [
             'terminal_code' => $terminalCode,
-            'terminal' => $terminal
+            'terminal' => $terminal,
         ]);
     }
 }

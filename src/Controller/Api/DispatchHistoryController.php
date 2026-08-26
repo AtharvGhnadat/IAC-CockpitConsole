@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Repository\DispatchEventRepository;
@@ -34,7 +36,7 @@ class DispatchHistoryController extends AbstractController
                 'quantity' => $event->getQuantity(),
                 'scan_time' => $event->getDeviceTimestamp()?->format(\DateTimeInterface::ATOM),
                 'received_time' => $event->getReceivedAt()->format(\DateTimeInterface::ATOM),
-                'processed_time' => $event->getProcessedAt()->format(\DateTimeInterface::ATOM)
+                'processed_time' => $event->getProcessedAt()->format(\DateTimeInterface::ATOM),
             ];
         }
 

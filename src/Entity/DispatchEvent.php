@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\DispatchEventRepository;
@@ -62,6 +64,7 @@ class DispatchEvent
     public function setDispatchUuid(string $dispatch_uuid): static
     {
         $this->dispatch_uuid = $dispatch_uuid;
+
         return $this;
     }
 
@@ -73,6 +76,7 @@ class DispatchEvent
     public function setDeviceEvent(DeviceEvent $device_event): static
     {
         $this->device_event = $device_event;
+
         return $this;
     }
 
@@ -84,6 +88,7 @@ class DispatchEvent
     public function setCockpit(?Cockpit $cockpit): static
     {
         $this->cockpit = $cockpit;
+
         return $this;
     }
 
@@ -95,6 +100,7 @@ class DispatchEvent
     public function setScannerModel(string $scanner_model): static
     {
         $this->scanner_model = $scanner_model;
+
         return $this;
     }
 
@@ -106,6 +112,7 @@ class DispatchEvent
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
+
         return $this;
     }
 
@@ -117,6 +124,7 @@ class DispatchEvent
     public function setDeviceTimestamp(?\DateTimeImmutable $device_timestamp): static
     {
         $this->device_timestamp = $device_timestamp;
+
         return $this;
     }
 
@@ -128,6 +136,7 @@ class DispatchEvent
     public function setReceivedAt(\DateTimeImmutable $received_at): static
     {
         $this->received_at = $received_at;
+
         return $this;
     }
 
@@ -139,6 +148,7 @@ class DispatchEvent
     public function setProcessedAt(\DateTimeImmutable $processed_at): static
     {
         $this->processed_at = $processed_at;
+
         return $this;
     }
 

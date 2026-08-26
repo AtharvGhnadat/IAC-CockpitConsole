@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Application\Processing\Scanner2DispatchProcessor;
@@ -21,7 +23,7 @@ class ProcessPendingDispatchCommand extends Command
 
     public function __construct(
         DeviceEventRepository $deviceEventRepo,
-        Scanner2DispatchProcessor $scanner2Processor
+        Scanner2DispatchProcessor $scanner2Processor,
     ) {
         parent::__construct();
         $this->deviceEventRepo = $deviceEventRepo;
@@ -43,13 +45,14 @@ class ProcessPendingDispatchCommand extends Command
             ->getQuery()
             ->getResult();
 
-        $count = count($pendingEvents);
+        $count = \count($pendingEvents);
         if ($count === 0) {
             $io->success('No pending scanner2 events found.');
+
             return Command::SUCCESS;
         }
 
-        $io->text(sprintf('Found %d pending scanner2 events. Processing...', $count));
+        $io->text(\sprintf('Found %d pending scanner2 events. Processing...', $count));
 
         $success = 0;
         $failed = 0;
@@ -58,17 +61,17 @@ class ProcessPendingDispatchCommand extends Command
             try {
                 $this->scanner2Processor->process($event);
                 if ($event->getProcessingStatus() === 'processed') {
-                    $success++;
+                    ++$success;
                 } else {
-                    $failed++;
+                    ++$failed;
                 }
             } catch (\Exception $e) {
-                $failed++;
-                $io->error(sprintf('Event ID %s failed: %s', $event->getId(), $e->getMessage()));
+                ++$failed;
+                $io->error(\sprintf('Event ID %s failed: %s', $event->getId(), $e->getMessage()));
             }
         }
 
-        $io->success(sprintf('Completed. Success: %d, Failed/Skipped: %d', $success, $failed));
+        $io->success(\sprintf('Completed. Success: %d, Failed/Skipped: %d', $success, $failed));
 
         return Command::SUCCESS;
     }

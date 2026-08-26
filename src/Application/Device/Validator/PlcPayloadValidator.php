@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Device\Validator;
 
 class PlcPayloadValidator implements DevicePayloadValidatorInterface
@@ -8,11 +10,11 @@ class PlcPayloadValidator implements DevicePayloadValidatorInterface
     {
         $requiredFields = ['cockpit', 'dateTime'];
         foreach ($requiredFields as $field) {
-            if (!array_key_exists($field, $payload)) {
-                throw new \InvalidArgumentException(sprintf('Missing required field: %s', $field));
+            if (!\array_key_exists($field, $payload)) {
+                throw new \InvalidArgumentException(\sprintf('Missing required field: %s', $field));
             }
         }
-        
+
         if (empty($payload['cockpit'])) {
             throw new \InvalidArgumentException('Cockpit code cannot be empty.');
         }
@@ -23,8 +25,9 @@ class PlcPayloadValidator implements DevicePayloadValidatorInterface
         $timeString = $payload['dateTime'];
         $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $timeString);
         if (!$dt || $dt->format('Y-m-d H:i:s') !== $timeString) {
-            throw new \InvalidArgumentException(sprintf('Invalid dateTime format: %s', $timeString));
+            throw new \InvalidArgumentException(\sprintf('Invalid dateTime format: %s', $timeString));
         }
+
         return $dt;
     }
 

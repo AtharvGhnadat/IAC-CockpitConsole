@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\ProductionQueue;
@@ -11,8 +13,8 @@ use Doctrine\Persistence\ManagerRegistry;
  *
  * @method ProductionQueue|null find($id, $lockMode = null, $lockVersion = null)
  * @method ProductionQueue|null findOneBy(array $criteria, array $orderBy = null)
- * @method ProductionQueue[]    findAll()
- * @method ProductionQueue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method ProductionQueue[] findAll()
+ * @method ProductionQueue[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ProductionQueueRepository extends ServiceEntityRepository
 {

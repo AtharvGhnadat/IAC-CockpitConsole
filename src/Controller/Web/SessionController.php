@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Web;
 
 use App\Entity\AuditEvent;
@@ -28,7 +30,7 @@ class SessionController extends AbstractController
             $audit->setDescription('Manual dashboard lock by operator.');
             $audit->setContext([
                 'session_uuid' => $session->getSessionUuid(),
-                'terminal' => $terminal->getTerminalCode()
+                'terminal' => $terminal->getTerminalCode(),
             ]);
 
             $em->persist($session);

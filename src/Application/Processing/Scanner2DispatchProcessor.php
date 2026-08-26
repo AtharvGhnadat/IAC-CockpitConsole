@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Processing;
 
 use App\Entity\AuditEvent;
@@ -22,7 +24,7 @@ class Scanner2DispatchProcessor
     public function __construct(
         EntityManagerInterface $em,
         LoggerInterface $deviceIngestionLogger,
-        #[Autowire(env: 'int:APP_DISPATCH_BATCH_SIZE')] int $batchSize
+        #[Autowire(env: 'int:APP_DISPATCH_BATCH_SIZE')] int $batchSize,
     ) {
         $this->em = $em;
         $this->logger = $deviceIngestionLogger;
@@ -37,11 +39,12 @@ class Scanner2DispatchProcessor
 
         if ($event->getProcessingStatus() === 'processed') {
             $this->logger->info('Scanner2 event already processed, skipping.', ['id' => $event->getId()]);
+
             return;
         }
 
         $payload = $event->getRawPayload();
-        
+
         $modelStr = $payload['model'] ?? null;
         $quantityRaw = $payload['quantity'] ?? null;
         $dateTimeStr = $payload['scandatetime'] ?? null;
@@ -50,9 +53,10 @@ class Scanner2DispatchProcessor
 
         try {
             // 1. Validate Quantity
-            if (!is_numeric($quantityRaw) || (int)$quantityRaw !== $this->batchSize) {
+            if (!is_numeric($quantityRaw) || (int) $quantityRaw !== $this->batchSize) {
                 $this->markFailed($event, 'INVALID_DISPATCH_QUANTITY', 'Expected ' . $this->batchSize . ' got ' . $quantityRaw);
                 $this->em->commit();
+
                 return;
             }
 
@@ -60,17 +64,19 @@ class Scanner2DispatchProcessor
             if (!$modelStr) {
                 $this->markFailed($event, 'UNKNOWN_MODEL', 'Missing model string.');
                 $this->em->commit();
+
                 return;
             }
 
             $mapping = $this->em->getRepository(CockpitModelMapping::class)->findOneBy([
                 'scanner_model' => $modelStr,
-                'is_active' => true
+                'is_active' => true,
             ]);
 
             if (!$mapping) {
                 $this->markFailed($event, 'UNKNOWN_MODEL', 'No active mapping for model: ' . $modelStr);
                 $this->em->commit();
+
                 return;
             }
 
@@ -83,6 +89,7 @@ class Scanner2DispatchProcessor
                 $event->setProcessedAt(new \DateTimeImmutable());
                 $this->em->flush();
                 $this->em->commit();
+
                 return;
             }
 
@@ -90,12 +97,13 @@ class Scanner2DispatchProcessor
             $cockpitStateQuery = $this->em->createQuery('SELECT cs FROM App\Entity\CockpitState cs WHERE cs.cockpit = :cockpit')
                 ->setParameter('cockpit', $cockpit)
                 ->setLockMode(LockMode::PESSIMISTIC_WRITE);
-                
+
             $cockpitState = $cockpitStateQuery->getOneOrNullResult();
 
             if (!$cockpitState) {
                 $this->markFailed($event, 'STATE_NOT_FOUND', 'Cockpit state missing for ' . $cockpit->getCockpitCode());
                 $this->em->commit();
+
                 return;
             }
 
@@ -103,8 +111,9 @@ class Scanner2DispatchProcessor
             $currentAvailable = (int) $cockpitState->getAvailableStock();
             if ($currentAvailable < $this->batchSize) {
                 // Not enough stock, leave event in 'received' or 'failed' for retry
-                $this->markFailed($event, 'INSUFFICIENT_AVAILABLE_STOCK', sprintf('Required %d, but only %d available.', $this->batchSize, $currentAvailable));
+                $this->markFailed($event, 'INSUFFICIENT_AVAILABLE_STOCK', \sprintf('Required %d, but only %d available.', $this->batchSize, $currentAvailable));
                 $this->em->commit();
+
                 return;
             }
 
@@ -113,8 +122,8 @@ class Scanner2DispatchProcessor
             $newDispatched = $currentDispatched + $this->batchSize;
             $newAvailable = $currentAvailable - $this->batchSize;
 
-            $cockpitState->setTotalDispatched((string)$newDispatched);
-            $cockpitState->setAvailableStock((string)$newAvailable);
+            $cockpitState->setTotalDispatched((string) $newDispatched);
+            $cockpitState->setAvailableStock((string) $newAvailable);
             $cockpitState->setUpdatedAt(new \DateTimeImmutable());
 
             // 7. Create Dispatch Ledger Entry
@@ -126,17 +135,17 @@ class Scanner2DispatchProcessor
             $dispatchEvent->setScannerModel($modelStr);
             $dispatchEvent->setQuantity($this->batchSize);
             $dispatchEvent->setReceivedAt($event->getReceivedAt());
-            
+
             if ($dateTimeStr) {
                 $deviceTime = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $dateTimeStr);
                 if ($deviceTime) {
                     $dispatchEvent->setDeviceTimestamp($deviceTime);
                 }
             }
-            
+
             $now = new \DateTimeImmutable();
             $dispatchEvent->setProcessedAt($now);
-            
+
             $this->em->persist($dispatchEvent);
 
             // 8. Write Audit
@@ -149,28 +158,28 @@ class Scanner2DispatchProcessor
                 'device_event_id' => $event->getId(),
                 'quantity' => $this->batchSize,
                 'previous_available' => $currentAvailable,
-                'new_available' => $newAvailable
+                'new_available' => $newAvailable,
             ]);
             $this->em->persist($audit);
 
             // Mark device event processed
             $event->setProcessingStatus('processed');
             $event->setProcessedAt($now);
-            
+
             $this->em->flush();
             $this->em->commit();
 
             $this->logger->info('Scanner2 event successfully dispatched.', [
                 'event_id' => $event->getId(),
-                'cockpit' => $cockpit->getCockpitCode()
+                'cockpit' => $cockpit->getCockpitCode(),
             ]);
-
         } catch (\Exception $e) {
             $this->em->rollback();
             $this->logger->error('Transaction failed during Scanner2 processing', [
                 'event_id' => $event->getId(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
@@ -180,27 +189,27 @@ class Scanner2DispatchProcessor
         $event->setProcessingStatus('failed');
         $event->setLastError(json_encode([
             'code' => $errorCode,
-            'details' => $details
+            'details' => $details,
         ]));
-        
+
         // Save the failure state, use a separate flush to avoid transaction mess
         $this->em->flush();
-        
+
         $this->logger->warning('Scanner2 event rejected', [
             'event_id' => $event->getId(),
             'code' => $errorCode,
-            'details' => $details
+            'details' => $details,
         ]);
-        
+
         // Also log to audit if it's a business rejection
-        if (in_array($errorCode, ['INSUFFICIENT_AVAILABLE_STOCK', 'INVALID_DISPATCH_QUANTITY', 'UNKNOWN_MODEL'])) {
+        if (\in_array($errorCode, ['INSUFFICIENT_AVAILABLE_STOCK', 'INVALID_DISPATCH_QUANTITY', 'UNKNOWN_MODEL'], true)) {
             $audit = new AuditEvent();
             $audit->setEventType('DISPATCH_REJECTED');
             $audit->setDescription('Dispatch was rejected during business validation.');
             $audit->setContext([
                 'device_event_id' => $event->getId(),
                 'reason' => $errorCode,
-                'details' => $details
+                'details' => $details,
             ]);
             $this->em->persist($audit);
             $this->em->flush();

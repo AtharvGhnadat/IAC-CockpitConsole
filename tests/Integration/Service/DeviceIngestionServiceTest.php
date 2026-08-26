@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Integration\Service;
 
 use App\Application\Service\DeviceIngestionService;
@@ -18,13 +20,13 @@ class DeviceIngestionServiceTest extends KernelTestCase
         $this->entityManager = $kernel->getContainer()->get('doctrine')->getManager();
     }
 
-    public function testIngestEsslPayload()
+    public function testIngestEsslPayload(): void
     {
         $json = json_encode([
             'machine_ip' => '192.168.1.205',
             'user_name' => 'Sachinadmin',
             'privilege' => 'User',
-            'punch_time' => '2026-08-25 18:25:22'
+            'punch_time' => '2026-08-25 18:25:22',
         ]);
 
         $event = $this->ingestionService->ingest('essl', $json, '127.0.0.1');
@@ -37,11 +39,11 @@ class DeviceIngestionServiceTest extends KernelTestCase
         $this->assertEquals('received', $event->getProcessingStatus());
     }
 
-    public function testIngestPlcPayload()
+    public function testIngestPlcPayload(): void
     {
         $json = json_encode([
             'cockpit' => '2301AZ106071N',
-            'dateTime' => '2026-08-25 18:25:22'
+            'dateTime' => '2026-08-25 18:25:22',
         ]);
 
         $event = $this->ingestionService->ingest('plc', $json, '192.168.1.50');
@@ -50,13 +52,13 @@ class DeviceIngestionServiceTest extends KernelTestCase
         $this->assertSame('plc', $event->getSourceType());
     }
 
-    public function testIngestScanner1Payload()
+    public function testIngestScanner1Payload(): void
     {
         $json = json_encode([
             'scanner' => 'scanner1',
             'model' => 'AX7 H - 2301FW608171N',
             'quantity' => '10',
-            'scandatetime' => '2026-08-25 18:25:22'
+            'scandatetime' => '2026-08-25 18:25:22',
         ]);
 
         $event = $this->ingestionService->ingest('scanner1', $json, '192.168.1.60');
@@ -67,16 +69,16 @@ class DeviceIngestionServiceTest extends KernelTestCase
         $this->assertSame('10', $event->getRawPayload()['quantity']);
     }
 
-    public function testMalformedJsonRejection()
+    public function testMalformedJsonRejection(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->ingestionService->ingest('plc', '{malformed:', '127.0.0.1');
     }
 
-    public function testMissingRequiredFieldRejection()
+    public function testMissingRequiredFieldRejection(): void
     {
         $json = json_encode([
-            'cockpit' => '2301AZ106071N'
+            'cockpit' => '2301AZ106071N',
             // Missing dateTime
         ]);
 
@@ -84,13 +86,13 @@ class DeviceIngestionServiceTest extends KernelTestCase
         $this->ingestionService->ingest('plc', $json, '127.0.0.1');
     }
 
-    public function testInvalidQuantityFormatRejection()
+    public function testInvalidQuantityFormatRejection(): void
     {
         $json = json_encode([
             'scanner' => 'scanner1',
             'model' => 'AX7 H - 2301FW608171N',
             'quantity' => '10.5', // Decimal not allowed
-            'scandatetime' => '2026-08-25 18:25:22'
+            'scandatetime' => '2026-08-25 18:25:22',
         ]);
 
         $this->expectException(\InvalidArgumentException::class);

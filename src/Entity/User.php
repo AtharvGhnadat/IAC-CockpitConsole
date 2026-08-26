@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -50,6 +52,7 @@ class User
     public function setUsername(string $username): static
     {
         $this->username = $username;
+
         return $this;
     }
 
@@ -61,6 +64,7 @@ class User
     public function setDisplayName(string $display_name): static
     {
         $this->display_name = $display_name;
+
         return $this;
     }
 
@@ -72,6 +76,7 @@ class User
     public function setRole(string $role): static
     {
         $this->role = $role;
+
         return $this;
     }
 
@@ -83,6 +88,7 @@ class User
     public function setIsActive(bool $is_active): static
     {
         $this->is_active = $is_active;
+
         return $this;
     }
 
@@ -99,6 +105,7 @@ class User
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Application\Service\SystemHealthService;
@@ -12,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'cockpit:health',
-    description: 'Displays the current operational health of CockpitConsole.'
+    description: 'Displays the current operational health of CockpitConsole.',
 )]
 class SystemHealthCommand extends Command
 {
@@ -35,8 +37,9 @@ class SystemHealthCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         if ($input->getOption('json')) {
-            $output->writeln(json_encode($snapshot, JSON_PRETTY_PRINT));
-            return match($snapshot['overall']) {
+            $output->writeln(json_encode($snapshot, \JSON_PRETTY_PRINT));
+
+            return match ($snapshot['overall']) {
                 'CRITICAL' => 2,
                 'WARNING' => 1,
                 default => 0,
@@ -72,16 +75,16 @@ class SystemHealthCommand extends Command
             foreach ($snapshot['devices'] as $code => $health) {
                 $statusStr = $this->formatStatus($health['status']);
                 if (isset($health['last_seen_seconds'])) {
-                    $statusStr .= sprintf(' (Last seen: %d sec ago)', $health['last_seen_seconds']);
+                    $statusStr .= \sprintf(' (Last seen: %d sec ago)', $health['last_seen_seconds']);
                 }
                 if (isset($health['failures'])) {
-                    $statusStr .= sprintf(' (Consecutive Failures: %d)', $health['failures']);
+                    $statusStr .= \sprintf(' (Consecutive Failures: %d)', $health['failures']);
                 }
                 $io->writeln(str_pad($code . ':', 15) . $statusStr);
             }
         }
 
-        return match($snapshot['overall']) {
+        return match ($snapshot['overall']) {
             'CRITICAL' => 2,
             'WARNING' => 1,
             default => 0,

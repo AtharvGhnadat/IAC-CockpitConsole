@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\CockpitRepository;
@@ -51,6 +53,7 @@ class Cockpit
     public function setCockpitCode(string $cockpit_code): static
     {
         $this->cockpit_code = $cockpit_code;
+
         return $this;
     }
 
@@ -62,6 +65,7 @@ class Cockpit
     public function setCockpitName(?string $cockpit_name): static
     {
         $this->cockpit_name = $cockpit_name;
+
         return $this;
     }
 
@@ -73,6 +77,7 @@ class Cockpit
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -84,6 +89,7 @@ class Cockpit
     public function setIsActive(bool $is_active): static
     {
         $this->is_active = $is_active;
+
         return $this;
     }
 
@@ -100,6 +106,7 @@ class Cockpit
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\DeviceEventRepository;
@@ -78,6 +80,7 @@ class DeviceEvent
     public function setEventUuid(string $event_uuid): static
     {
         $this->event_uuid = $event_uuid;
+
         return $this;
     }
 
@@ -89,6 +92,7 @@ class DeviceEvent
     public function setDevice(?Device $device): static
     {
         $this->device = $device;
+
         return $this;
     }
 
@@ -100,6 +104,7 @@ class DeviceEvent
     public function setSourceType(string $source_type): static
     {
         $this->source_type = $source_type;
+
         return $this;
     }
 
@@ -111,6 +116,7 @@ class DeviceEvent
     public function setSourceIp(?string $source_ip): static
     {
         $this->source_ip = $source_ip;
+
         return $this;
     }
 
@@ -122,6 +128,7 @@ class DeviceEvent
     public function setDeviceTimestamp(?\DateTimeImmutable $device_timestamp): static
     {
         $this->device_timestamp = $device_timestamp;
+
         return $this;
     }
 
@@ -133,6 +140,7 @@ class DeviceEvent
     public function setReceivedAt(\DateTimeImmutable $received_at): static
     {
         $this->received_at = $received_at;
+
         return $this;
     }
 
@@ -144,6 +152,7 @@ class DeviceEvent
     public function setRawPayload(array $raw_payload): static
     {
         $this->raw_payload = $raw_payload;
+
         return $this;
     }
 
@@ -155,6 +164,7 @@ class DeviceEvent
     public function setPayloadHash(string $payload_hash): static
     {
         $this->payload_hash = $payload_hash;
+
         return $this;
     }
 
@@ -166,6 +176,7 @@ class DeviceEvent
     public function setProcessingStatus(string $processing_status): static
     {
         $this->processing_status = $processing_status;
+
         return $this;
     }
 
@@ -177,6 +188,7 @@ class DeviceEvent
     public function setProcessingAttempts(int $processing_attempts): static
     {
         $this->processing_attempts = $processing_attempts;
+
         return $this;
     }
 
@@ -188,6 +200,7 @@ class DeviceEvent
     public function setProcessedAt(?\DateTimeImmutable $processed_at): static
     {
         $this->processed_at = $processed_at;
+
         return $this;
     }
 
@@ -199,6 +212,7 @@ class DeviceEvent
     public function setLastError(?string $last_error): static
     {
         $this->last_error = $last_error;
+
         return $this;
     }
 

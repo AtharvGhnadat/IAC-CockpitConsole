@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\RequestEvent;
@@ -11,8 +13,8 @@ use Doctrine\Persistence\ManagerRegistry;
  *
  * @method RequestEvent|null find($id, $lockMode = null, $lockVersion = null)
  * @method RequestEvent|null findOneBy(array $criteria, array $orderBy = null)
- * @method RequestEvent[]    findAll()
- * @method RequestEvent[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method RequestEvent[] findAll()
+ * @method RequestEvent[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class RequestEventRepository extends ServiceEntityRepository
 {

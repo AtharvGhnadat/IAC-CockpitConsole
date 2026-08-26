@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Integration\Processing;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class Scanner1ProductionProcessorTest extends KernelTestCase
 {
-    public function testProcessCreatesProductionEventAndUpdatesCockpitState()
+    public function testProcessCreatesProductionEventAndUpdatesCockpitState(): void
     {
         // 1. Create a mock DeviceEvent (source_type = scanner1)
         // 2. Pass it to Scanner1ProductionProcessor->process()
@@ -15,7 +17,7 @@ class Scanner1ProductionProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure established.');
     }
 
-    public function testInvalidBatchQuantityRejects()
+    public function testInvalidBatchQuantityRejects(): void
     {
         // 1. Scanner payload with quantity 5
         // 2. Process
@@ -23,7 +25,7 @@ class Scanner1ProductionProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure established.');
     }
 
-    public function testUnknownModelRejects()
+    public function testUnknownModelRejects(): void
     {
         // 1. Scanner payload with unmapped model
         // 2. Process
@@ -31,7 +33,7 @@ class Scanner1ProductionProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure established.');
     }
 
-    public function testIdempotencyPreventsDuplicateProcessing()
+    public function testIdempotencyPreventsDuplicateProcessing(): void
     {
         // 1. Process valid scanner1 event
         // 2. Process again

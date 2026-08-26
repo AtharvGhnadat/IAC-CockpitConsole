@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\CockpitStateRepository;
@@ -62,6 +64,7 @@ class CockpitState
     public function setCockpit(Cockpit $cockpit): static
     {
         $this->cockpit = $cockpit;
+
         return $this;
     }
 
@@ -73,6 +76,7 @@ class CockpitState
     public function setTotalRequested(string $total_requested): static
     {
         $this->total_requested = $total_requested;
+
         return $this;
     }
 
@@ -84,6 +88,7 @@ class CockpitState
     public function setTotalProduced(string $total_produced): static
     {
         $this->total_produced = $total_produced;
+
         return $this;
     }
 
@@ -95,6 +100,7 @@ class CockpitState
     public function setTotalDispatched(string $total_dispatched): static
     {
         $this->total_dispatched = $total_dispatched;
+
         return $this;
     }
 
@@ -106,6 +112,7 @@ class CockpitState
     public function setAvailableStock(string $available_stock): static
     {
         $this->available_stock = $available_stock;
+
         return $this;
     }
 
@@ -117,6 +124,7 @@ class CockpitState
     public function setCurrentBalance(string $current_balance): static
     {
         $this->current_balance = $current_balance;
+
         return $this;
     }
 
@@ -133,6 +141,7 @@ class CockpitState
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 

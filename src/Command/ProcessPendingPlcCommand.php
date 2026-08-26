@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Application\Processing\PlcRequestProcessor;
@@ -21,7 +23,7 @@ class ProcessPendingPlcCommand extends Command
 
     public function __construct(
         DeviceEventRepository $deviceEventRepo,
-        PlcRequestProcessor $plcProcessor
+        PlcRequestProcessor $plcProcessor,
     ) {
         parent::__construct();
         $this->deviceEventRepo = $deviceEventRepo;
@@ -43,13 +45,14 @@ class ProcessPendingPlcCommand extends Command
             ->getQuery()
             ->getResult();
 
-        $count = count($pendingEvents);
+        $count = \count($pendingEvents);
         if ($count === 0) {
             $io->success('No pending PLC events found.');
+
             return Command::SUCCESS;
         }
 
-        $io->text(sprintf('Found %d pending PLC events. Processing...', $count));
+        $io->text(\sprintf('Found %d pending PLC events. Processing...', $count));
 
         $success = 0;
         $failed = 0;
@@ -59,17 +62,17 @@ class ProcessPendingPlcCommand extends Command
                 $this->plcProcessor->process($event);
                 // Check if it's marked processed
                 if ($event->getProcessingStatus() === 'processed') {
-                    $success++;
+                    ++$success;
                 } else {
-                    $failed++;
+                    ++$failed;
                 }
             } catch (\Exception $e) {
-                $failed++;
-                $io->error(sprintf('Event ID %s failed: %s', $event->getId(), $e->getMessage()));
+                ++$failed;
+                $io->error(\sprintf('Event ID %s failed: %s', $event->getId(), $e->getMessage()));
             }
         }
 
-        $io->success(sprintf('Completed. Success: %d, Failed/Skipped: %d', $success, $failed));
+        $io->success(\sprintf('Completed. Success: %d, Failed/Skipped: %d', $success, $failed));
 
         return Command::SUCCESS;
     }

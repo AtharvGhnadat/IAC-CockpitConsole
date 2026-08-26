@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\TerminalSessionRepository;
@@ -68,6 +70,7 @@ class TerminalSession
     public function setSessionUuid(string $session_uuid): static
     {
         $this->session_uuid = $session_uuid;
+
         return $this;
     }
 
@@ -79,6 +82,7 @@ class TerminalSession
     public function setTerminal(?Terminal $terminal): static
     {
         $this->terminal = $terminal;
+
         return $this;
     }
 
@@ -90,6 +94,7 @@ class TerminalSession
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -101,6 +106,7 @@ class TerminalSession
     public function setFingerprintEvent(?DeviceEvent $fingerprint_event): static
     {
         $this->fingerprint_event = $fingerprint_event;
+
         return $this;
     }
 
@@ -112,6 +118,7 @@ class TerminalSession
     public function setRole(string $role): static
     {
         $this->role = $role;
+
         return $this;
     }
 
@@ -123,6 +130,7 @@ class TerminalSession
     public function setStartedAt(\DateTimeImmutable $started_at): static
     {
         $this->started_at = $started_at;
+
         return $this;
     }
 
@@ -134,6 +142,7 @@ class TerminalSession
     public function setExpiresAt(\DateTimeImmutable $expires_at): static
     {
         $this->expires_at = $expires_at;
+
         return $this;
     }
 
@@ -145,6 +154,7 @@ class TerminalSession
     public function setEndedAt(?\DateTimeImmutable $ended_at): static
     {
         $this->ended_at = $ended_at;
+
         return $this;
     }
 
@@ -156,6 +166,7 @@ class TerminalSession
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
         return $this;
     }
 
@@ -167,6 +178,7 @@ class TerminalSession
     public function setEndReason(?string $end_reason): static
     {
         $this->end_reason = $end_reason;
+
         return $this;
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Application\Service\FifoQueueService;
@@ -26,7 +28,7 @@ class ProductionQueueController extends AbstractController
     {
         $current = $this->fifoService->getCurrentProduction();
         $pending = $this->fifoService->getPendingQueue();
-        
+
         $now = new \DateTimeImmutable();
 
         $queueData = [];
@@ -35,7 +37,7 @@ class ProductionQueueController extends AbstractController
         foreach ($pending as $index => $q) {
             $cockpit = $q->getCockpit();
             $state = $this->stateRepo->findOneBy(['cockpit' => $cockpit]);
-            
+
             // Calculate waiting seconds dynamically
             $pendingSince = $q->getPendingReceivedAt();
             $waitingSeconds = $now->getTimestamp() - $pendingSince->getTimestamp();
@@ -44,7 +46,7 @@ class ProductionQueueController extends AbstractController
                 'position' => $index + 1,
                 'cockpit' => $cockpit->getCockpitCode(),
                 'current_balance' => $state ? (int) $state->getCurrentBalance() : 0,
-                'waiting_seconds' => max(0, $waitingSeconds)
+                'waiting_seconds' => max(0, $waitingSeconds),
             ];
 
             $queueData[] = $item;
@@ -52,7 +54,7 @@ class ProductionQueueController extends AbstractController
             if ($index === 0) {
                 $nextData = [
                     'cockpit' => $cockpit->getCockpitCode(),
-                    'waiting_seconds' => max(0, $waitingSeconds)
+                    'waiting_seconds' => max(0, $waitingSeconds),
                 ];
             }
         }
@@ -61,14 +63,14 @@ class ProductionQueueController extends AbstractController
         if ($current) {
             $currentData = [
                 'cockpit' => $current->getCockpit()->getCockpitCode(),
-                'status' => $current->getStatus()
+                'status' => $current->getStatus(),
             ];
         }
 
         return $this->json([
             'current' => $currentData,
             'next' => $nextData,
-            'queue' => $queueData
+            'queue' => $queueData,
         ]);
     }
 
@@ -87,9 +89,8 @@ class ProductionQueueController extends AbstractController
 
             return $this->json([
                 'message' => 'Production started successfully.',
-                'cockpit' => $started->getCockpit()->getCockpitCode()
+                'cockpit' => $started->getCockpit()->getCockpitCode(),
             ]);
-
         } catch (\RuntimeException $e) {
             return $this->json(['error' => $e->getMessage()], 409);
         } catch (\Exception $e) {

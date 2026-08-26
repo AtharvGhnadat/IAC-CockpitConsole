@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\AuditEventRepository;
@@ -58,6 +60,7 @@ class AuditEvent
     public function setEventType(string $event_type): static
     {
         $this->event_type = $event_type;
+
         return $this;
     }
 
@@ -69,6 +72,7 @@ class AuditEvent
     public function setActorType(string $actor_type): static
     {
         $this->actor_type = $actor_type;
+
         return $this;
     }
 
@@ -80,6 +84,7 @@ class AuditEvent
     public function setActorIdentifier(?string $actor_identifier): static
     {
         $this->actor_identifier = $actor_identifier;
+
         return $this;
     }
 
@@ -91,6 +96,7 @@ class AuditEvent
     public function setEntityType(?string $entity_type): static
     {
         $this->entity_type = $entity_type;
+
         return $this;
     }
 
@@ -102,6 +108,7 @@ class AuditEvent
     public function setEntityIdentifier(?string $entity_identifier): static
     {
         $this->entity_identifier = $entity_identifier;
+
         return $this;
     }
 
@@ -113,6 +120,7 @@ class AuditEvent
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -124,6 +132,7 @@ class AuditEvent
     public function setContext(?array $context): static
     {
         $this->context = $context;
+
         return $this;
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Security;
 
 use App\Entity\AuditEvent;
@@ -25,7 +27,7 @@ class FingerprintEventProcessor
         FingerprintUserMappingRepository $mappingRepo,
         TerminalRepository $terminalRepo,
         TerminalSessionRepository $sessionRepo,
-        LoggerInterface $deviceIngestionLogger // using the specific channel
+        LoggerInterface $deviceIngestionLogger, // using the specific channel
     ) {
         $this->em = $em;
         $this->mappingRepo = $mappingRepo;
@@ -44,8 +46,9 @@ class FingerprintEventProcessor
         $existingSession = $this->sessionRepo->findActiveSessionByEventId((int) $event->getId());
         if ($existingSession) {
             $this->logger->info('Event already processed into a session, skipping.', [
-                'event_id' => $event->getId()
+                'event_id' => $event->getId(),
             ]);
+
             return;
         }
 
@@ -55,16 +58,19 @@ class FingerprintEventProcessor
 
         if (!$esslUsername || !$machineIp) {
             $this->logAndAuditRejected($event, 'Missing username or machine_ip in payload.');
+
             return;
         }
 
         $this->em->beginTransaction();
+
         try {
             // 2. Resolve User Mapping
             $mapping = $this->mappingRepo->findActiveMapping($esslUsername, $machineIp);
             if (!$mapping) {
                 $this->logAndAuditRejected($event, 'Unknown fingerprint user or mapping inactive.');
                 $this->em->commit();
+
                 return;
             }
 
@@ -72,18 +78,20 @@ class FingerprintEventProcessor
             if (!$user->isActive()) {
                 $this->logAndAuditRejected($event, 'Mapped user is inactive.');
                 $this->em->commit();
+
                 return;
             }
 
             // 3. Resolve Terminal
             $terminal = $this->terminalRepo->findOneBy([
                 'fingerprint_device_ip' => $machineIp,
-                'is_active' => true
+                'is_active' => true,
             ]);
 
             if (!$terminal) {
                 $this->logAndAuditRejected($event, 'No active terminal mapped for this fingerprint device.');
                 $this->em->commit();
+
                 return;
             }
 
@@ -94,10 +102,10 @@ class FingerprintEventProcessor
                 $existingActiveSession->setEndReason('replaced');
                 $existingActiveSession->setEndedAt(new \DateTimeImmutable());
                 $this->em->persist($existingActiveSession);
-                
+
                 $this->createAuditEvent('SESSION_REPLACED', 'Previous session replaced by new fingerprint scan.', [
                     'replaced_session_uuid' => $existingActiveSession->getSessionUuid(),
-                    'terminal' => $terminal->getTerminalCode()
+                    'terminal' => $terminal->getTerminalCode(),
                 ], $user);
             }
 
@@ -112,30 +120,30 @@ class FingerprintEventProcessor
             $newSession->setStartedAt($now);
             $newSession->setExpiresAt($now->modify('+1 hour'));
             $newSession->setStatus('active');
-            
+
             $this->em->persist($newSession);
-            
+
             $this->createAuditEvent('SESSION_STARTED', 'Dashboard session started via fingerprint.', [
                 'session_uuid' => $newSession->getSessionUuid(),
                 'terminal' => $terminal->getTerminalCode(),
-                'user' => $user->getUsername()
+                'user' => $user->getUsername(),
             ], $user);
 
             $this->logger->info('Successfully created terminal session for fingerprint event.', [
                 'event_id' => $event->getId(),
                 'session_uuid' => $newSession->getSessionUuid(),
-                'terminal' => $terminal->getTerminalCode()
+                'terminal' => $terminal->getTerminalCode(),
             ]);
 
             $this->em->flush();
             $this->em->commit();
-
         } catch (\Exception $e) {
             $this->em->rollback();
             $this->logger->error('Transaction failed during fingerprint processing.', [
                 'error' => $e->getMessage(),
-                'event_id' => $event->getId()
+                'event_id' => $event->getId(),
             ]);
+
             throw $e;
         }
     }
@@ -144,7 +152,7 @@ class FingerprintEventProcessor
     {
         $this->logger->warning('Fingerprint rejected: ' . $reason, [
             'event_id' => $event->getId(),
-            'payload' => $event->getRawPayload()
+            'payload' => $event->getRawPayload(),
         ]);
 
         $audit = new AuditEvent();
@@ -153,22 +161,22 @@ class FingerprintEventProcessor
         $audit->setContext([
             'event_uuid' => $event->getEventUuid(),
             'event_id' => $event->getId(),
-            'source_ip' => $event->getSourceIp()
+            'source_ip' => $event->getSourceIp(),
         ]);
 
         $this->em->persist($audit);
         $this->em->flush();
     }
-    
-    private function createAuditEvent(string $action, string $description, array $context, \App\Entity\User $user = null): void
+
+    private function createAuditEvent(string $action, string $description, array $context, ?\App\Entity\User $user = null): void
     {
         $audit = new AuditEvent();
         $audit->setEventType($action);
         $audit->setDescription($description);
         $audit->setContext($context);
-        
+
         // Normally we might store the username in the description or context
-        
+
         $this->em->persist($audit);
     }
 }

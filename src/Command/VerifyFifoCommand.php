@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Repository\CockpitStateRepository;
@@ -42,11 +44,11 @@ class VerifyFifoCommand extends Command
 
         // 1. Check for multiple active cockpits in production
         $inProductionCount = (int) $this->em->getConnection()->fetchOne(
-            "SELECT COUNT(id) FROM production_queue WHERE status = 'in_production'"
+            "SELECT COUNT(id) FROM production_queue WHERE status = 'in_production'",
         );
         if ($inProductionCount > 1) {
-            $io->error(sprintf('CRITICAL: %d cockpits are marked as in_production!', $inProductionCount));
-            $discrepancies++;
+            $io->error(\sprintf('CRITICAL: %d cockpits are marked as in_production!', $inProductionCount));
+            ++$discrepancies;
         } elseif ($inProductionCount === 1) {
             $io->info('1 cockpit is correctly in production.');
         } else {
@@ -61,42 +63,42 @@ class VerifyFifoCommand extends Command
 
             $activeQueueCount = (int) $this->em->getConnection()->fetchOne(
                 "SELECT COUNT(id) FROM production_queue WHERE cockpit_id = :id AND status IN ('pending', 'selected', 'in_production')",
-                ['id' => $cockpitId]
+                ['id' => $cockpitId],
             );
 
             if ($balance > 0 && $activeQueueCount === 0) {
-                $io->error(sprintf(
+                $io->error(\sprintf(
                     "Cockpit '%s' has positive balance (+%d) but NO active queue entry.",
                     $state->getCockpit()->getCockpitCode(),
-                    $balance
+                    $balance,
                 ));
-                $discrepancies++;
+                ++$discrepancies;
             }
 
             if ($balance <= 0 && $activeQueueCount > 0) {
-                $io->error(sprintf(
+                $io->error(\sprintf(
                     "Cockpit '%s' has balance (%d) but has %d ACTIVE queue entries.",
                     $state->getCockpit()->getCockpitCode(),
                     $balance,
-                    $activeQueueCount
+                    $activeQueueCount,
                 ));
-                $discrepancies++;
+                ++$discrepancies;
             }
 
             if ($activeQueueCount > 1) {
-                $io->error(sprintf(
+                $io->error(\sprintf(
                     "Cockpit '%s' has duplicate active queue entries (%d).",
                     $state->getCockpit()->getCockpitCode(),
-                    $activeQueueCount
+                    $activeQueueCount,
                 ));
-                $discrepancies++;
+                ++$discrepancies;
             }
         }
 
         if ($discrepancies === 0) {
             $io->success('FIFO Queue is perfectly consistent with Cockpit State math.');
         } else {
-            $io->warning(sprintf('Found %d queue discrepancies. Manual intervention required.', $discrepancies));
+            $io->warning(\sprintf('Found %d queue discrepancies. Manual intervention required.', $discrepancies));
         }
 
         return Command::SUCCESS;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\FingerprintUserMappingRepository;
@@ -52,6 +54,7 @@ class FingerprintUserMapping
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -63,6 +66,7 @@ class FingerprintUserMapping
     public function setEsslUsername(string $essl_username): static
     {
         $this->essl_username = $essl_username;
+
         return $this;
     }
 
@@ -74,6 +78,7 @@ class FingerprintUserMapping
     public function setMachineIp(string $machine_ip): static
     {
         $this->machine_ip = $machine_ip;
+
         return $this;
     }
 
@@ -85,6 +90,7 @@ class FingerprintUserMapping
     public function setIsActive(bool $is_active): static
     {
         $this->is_active = $is_active;
+
         return $this;
     }
 
@@ -101,6 +107,7 @@ class FingerprintUserMapping
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

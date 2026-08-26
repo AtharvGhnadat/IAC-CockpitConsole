@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\DeviceRepository;
@@ -57,6 +59,7 @@ class Device
     public function setDeviceCode(string $device_code): static
     {
         $this->device_code = $device_code;
+
         return $this;
     }
 
@@ -68,6 +71,7 @@ class Device
     public function setDeviceName(?string $device_name): static
     {
         $this->device_name = $device_name;
+
         return $this;
     }
 
@@ -79,6 +83,7 @@ class Device
     public function setDeviceType(string $device_type): static
     {
         $this->device_type = $device_type;
+
         return $this;
     }
 
@@ -90,6 +95,7 @@ class Device
     public function setIpAddress(?string $ip_address): static
     {
         $this->ip_address = $ip_address;
+
         return $this;
     }
 
@@ -101,6 +107,7 @@ class Device
     public function setIsActive(bool $is_active): static
     {
         $this->is_active = $is_active;
+
         return $this;
     }
 
@@ -112,6 +119,7 @@ class Device
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -128,6 +136,7 @@ class Device
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

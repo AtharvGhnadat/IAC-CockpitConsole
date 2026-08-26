@@ -1,11 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Integration\Queue;
 
 use App\Application\Service\FifoQueueService;
 use App\Entity\Cockpit;
-use App\Entity\CockpitState;
-use App\Entity\ProductionQueue;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -28,7 +28,7 @@ class FifoQueueServiceTest extends KernelTestCase
         $this->em = null;
     }
 
-    public function testStartNextProductionPicksOldest()
+    public function testStartNextProductionPicksOldest(): void
     {
         // Conceptual test to verify the ORDER BY logic.
         // We know from requirements:
@@ -37,8 +37,8 @@ class FifoQueueServiceTest extends KernelTestCase
         // Next should be B.
         $this->assertTrue(true, 'Test structure validated.');
     }
-    
-    public function testSameTimeTieBreaking()
+
+    public function testSameTimeTieBreaking(): void
     {
         // Conceptual test:
         // A device_timestamp = X, received_at = Y, event_id = 100
@@ -47,7 +47,7 @@ class FifoQueueServiceTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure validated.');
     }
 
-    public function testCannotPreemptCurrentProduction()
+    public function testCannotPreemptCurrentProduction(): void
     {
         // Conceptual test:
         // Cockpit C is in_production.

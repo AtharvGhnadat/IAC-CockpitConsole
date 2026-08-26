@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\ProcessingFailureRepository;
@@ -61,6 +63,7 @@ class ProcessingFailure
     public function setDeviceEvent(?DeviceEvent $device_event): static
     {
         $this->device_event = $device_event;
+
         return $this;
     }
 
@@ -72,6 +75,7 @@ class ProcessingFailure
     public function setFailureType(string $failure_type): static
     {
         $this->failure_type = $failure_type;
+
         return $this;
     }
 
@@ -83,6 +87,7 @@ class ProcessingFailure
     public function setMessage(string $message): static
     {
         $this->message = $message;
+
         return $this;
     }
 
@@ -94,6 +99,7 @@ class ProcessingFailure
     public function setAttemptNumber(int $attempt_number): static
     {
         $this->attempt_number = $attempt_number;
+
         return $this;
     }
 
@@ -105,6 +111,7 @@ class ProcessingFailure
     public function setExceptionClass(?string $exception_class): static
     {
         $this->exception_class = $exception_class;
+
         return $this;
     }
 
@@ -116,6 +123,7 @@ class ProcessingFailure
     public function setContext(?array $context): static
     {
         $this->context = $context;
+
         return $this;
     }
 
@@ -132,6 +140,7 @@ class ProcessingFailure
     public function setResolvedAt(?\DateTimeImmutable $resolved_at): static
     {
         $this->resolved_at = $resolved_at;
+
         return $this;
     }
 
@@ -143,6 +152,7 @@ class ProcessingFailure
     public function setResolutionNote(?string $resolution_note): static
     {
         $this->resolution_note = $resolution_note;
+
         return $this;
     }
 }

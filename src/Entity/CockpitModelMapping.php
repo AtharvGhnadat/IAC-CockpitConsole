@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\CockpitModelMappingRepository;
@@ -52,6 +54,7 @@ class CockpitModelMapping
     public function setCockpit(?Cockpit $cockpit): static
     {
         $this->cockpit = $cockpit;
+
         return $this;
     }
 
@@ -63,6 +66,7 @@ class CockpitModelMapping
     public function setScannerModel(string $scanner_model): static
     {
         $this->scanner_model = $scanner_model;
+
         return $this;
     }
 
@@ -74,6 +78,7 @@ class CockpitModelMapping
     public function setMappingType(string $mapping_type): static
     {
         $this->mapping_type = $mapping_type;
+
         return $this;
     }
 
@@ -85,6 +90,7 @@ class CockpitModelMapping
     public function setIsActive(bool $is_active): static
     {
         $this->is_active = $is_active;
+
         return $this;
     }
 
@@ -101,6 +107,7 @@ class CockpitModelMapping
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

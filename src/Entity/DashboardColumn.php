@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\DashboardColumnRepository;
@@ -58,6 +60,7 @@ class DashboardColumn
     public function setDashboardRow(?DashboardRow $dashboardRow): static
     {
         $this->dashboardRow = $dashboardRow;
+
         return $this;
     }
 
@@ -69,6 +72,7 @@ class DashboardColumn
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -80,6 +84,7 @@ class DashboardColumn
     public function setMetricKey(string $metric_key): static
     {
         $this->metric_key = $metric_key;
+
         return $this;
     }
 
@@ -91,6 +96,7 @@ class DashboardColumn
     public function setCockpit(?Cockpit $cockpit): static
     {
         $this->cockpit = $cockpit;
+
         return $this;
     }
 
@@ -102,6 +108,7 @@ class DashboardColumn
     public function setDisplayOrder(int $display_order): static
     {
         $this->display_order = $display_order;
+
         return $this;
     }
 
@@ -113,6 +120,7 @@ class DashboardColumn
     public function setIsVisible(bool $is_visible): static
     {
         $this->is_visible = $is_visible;
+
         return $this;
     }
 
@@ -129,6 +137,7 @@ class DashboardColumn
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

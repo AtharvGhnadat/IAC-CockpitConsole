@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Service;
 
-use App\Entity\ProductionQueue;
 use App\Entity\AuditEvent;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\ProductionQueue;
 use Doctrine\DBAL\LockMode;
+use Doctrine\ORM\EntityManagerInterface;
 
 class FifoQueueService
 {
@@ -27,6 +29,7 @@ class FifoQueueService
 
     /**
      * Returns all pending/selected items ordered strictly by FIFO.
+     *
      * @return ProductionQueue[]
      */
     public function getPendingQueue(): array
@@ -49,6 +52,7 @@ class FifoQueueService
     public function startNextProduction(string $triggerSource = 'system'): ?ProductionQueue
     {
         $this->em->beginTransaction();
+
         try {
             // Lock the current in_production to prevent concurrent starts
             $currentQuery = $this->em->createQuery('
@@ -57,12 +61,13 @@ class FifoQueueService
             ')
             ->setParameter('status', 'in_production')
             ->setLockMode(LockMode::PESSIMISTIC_WRITE);
-            
+
             $current = $currentQuery->getOneOrNullResult();
-            
+
             if ($current) {
                 // A cockpit is already in production. Do not preempt it.
                 $this->em->rollback();
+
                 throw new \RuntimeException('Production is already active for cockpit: ' . $current->getCockpit()->getCockpitCode());
             }
 
@@ -83,11 +88,12 @@ class FifoQueueService
             if (!$nextQueue) {
                 // Queue is empty.
                 $this->em->rollback();
+
                 return null;
             }
 
             $now = new \DateTimeImmutable();
-            
+
             // Log old status before changing
             $oldStatus = $nextQueue->getStatus();
 
@@ -104,7 +110,7 @@ class FifoQueueService
                 'cockpit' => $nextQueue->getCockpit()->getCockpitCode(),
                 'queue_uuid' => $nextQueue->getQueueUuid(),
                 'trigger_source' => $triggerSource,
-                'previous_status' => $oldStatus
+                'previous_status' => $oldStatus,
             ]);
             $this->em->persist($audit);
 
@@ -112,9 +118,9 @@ class FifoQueueService
             $this->em->commit();
 
             return $nextQueue;
-
         } catch (\Exception $e) {
             $this->em->rollback();
+
             throw $e;
         }
     }

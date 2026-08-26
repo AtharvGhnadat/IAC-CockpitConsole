@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Repository\CockpitStateRepository;
@@ -21,7 +23,7 @@ class VerifyProductionStateCommand extends Command
 
     public function __construct(
         CockpitStateRepository $cockpitStateRepo,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
     ) {
         parent::__construct();
         $this->cockpitStateRepo = $cockpitStateRepo;
@@ -34,22 +36,22 @@ class VerifyProductionStateCommand extends Command
         $io->title('Production State Verification');
 
         $states = $this->cockpitStateRepo->findAll();
-        
+
         $discrepancies = 0;
 
         foreach ($states as $state) {
             $cockpitId = $state->getCockpit()->getId();
-            
+
             // Calculate sum from request_events
             $requestSum = (int) $this->em->getConnection()->fetchOne(
                 'SELECT COALESCE(SUM(quantity), 0) FROM request_events WHERE cockpit_id = :id',
-                ['id' => $cockpitId]
+                ['id' => $cockpitId],
             );
 
             // Calculate sum from production_events
             $productionSum = (int) $this->em->getConnection()->fetchOne(
                 'SELECT COALESCE(SUM(quantity), 0) FROM production_events WHERE cockpit_id = :id',
-                ['id' => $cockpitId]
+                ['id' => $cockpitId],
             );
 
             $expectedBalance = $requestSum - $productionSum;
@@ -58,17 +60,17 @@ class VerifyProductionStateCommand extends Command
             $actualProd = (int) $state->getTotalProduced();
             $actualBal = (int) $state->getCurrentBalance();
 
-            $isCorrect = ($actualReq === $requestSum) && 
-                         ($actualProd === $productionSum) && 
-                         ($actualBal === $expectedBalance);
+            $isCorrect = ($actualReq === $requestSum)
+                         && ($actualProd === $productionSum)
+                         && ($actualBal === $expectedBalance);
 
             if (!$isCorrect) {
-                $discrepancies++;
-                $io->error(sprintf(
+                ++$discrepancies;
+                $io->error(\sprintf(
                     "Discrepancy for Cockpit '%s':\nExpected: Req=%d, Prod=%d, Bal=%d\nActual  : Req=%d, Prod=%d, Bal=%d",
                     $state->getCockpit()->getCockpitCode(),
                     $requestSum, $productionSum, $expectedBalance,
-                    $actualReq, $actualProd, $actualBal
+                    $actualReq, $actualProd, $actualBal,
                 ));
             }
         }
@@ -76,7 +78,7 @@ class VerifyProductionStateCommand extends Command
         if ($discrepancies === 0) {
             $io->success('All Cockpit States are mathematically verified against the ledgers.');
         } else {
-            $io->warning(sprintf('Found %d discrepancies.', $discrepancies));
+            $io->warning(\sprintf('Found %d discrepancies.', $discrepancies));
         }
 
         return Command::SUCCESS;

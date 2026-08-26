@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Integration\EventListener;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TerminalAuthorizationListenerTest extends WebTestCase
 {
-    public function testUnauthenticatedAccessRedirectsToLock()
+    public function testUnauthenticatedAccessRedirectsToLock(): void
     {
         $client = static::createClient();
 
@@ -17,7 +19,7 @@ class TerminalAuthorizationListenerTest extends WebTestCase
         $this->assertResponseRedirects('/lock');
     }
 
-    public function testLockScreenIsAccessible()
+    public function testLockScreenIsAccessible(): void
     {
         $client = static::createClient();
 
@@ -28,14 +30,14 @@ class TerminalAuthorizationListenerTest extends WebTestCase
         $this->assertSelectorTextContains('h1', 'CockpitConsole');
     }
 
-    public function testSessionStatusIsAccessible()
+    public function testSessionStatusIsAccessible(): void
     {
         $client = static::createClient();
 
         $client->request('GET', '/session/status');
 
         $this->assertResponseIsSuccessful();
-        
+
         $response = json_decode($client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('authenticated', $response);
     }

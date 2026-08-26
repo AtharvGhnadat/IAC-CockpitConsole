@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Web;
 
 use App\Repository\TerminalRepository;
@@ -13,7 +15,7 @@ class SessionStatusController extends AbstractController
     #[Route('/session/status', name: 'app_session_status', methods: ['GET'])]
     public function status(
         TerminalRepository $terminalRepo,
-        TerminalSessionRepository $sessionRepo
+        TerminalSessionRepository $sessionRepo,
     ): JsonResponse {
         $terminalCode = $_ENV['APP_TERMINAL_ID'] ?? 'TERMINAL-01';
         $terminal = $terminalRepo->findOneBy(['terminal_code' => $terminalCode, 'is_active' => true]);
@@ -22,7 +24,7 @@ class SessionStatusController extends AbstractController
             return $this->json([
                 'authenticated' => false,
                 'terminal' => $terminalCode,
-                'error' => 'Terminal configuration invalid'
+                'error' => 'Terminal configuration invalid',
             ]);
         }
 
@@ -31,7 +33,7 @@ class SessionStatusController extends AbstractController
         if (!$session) {
             return $this->json([
                 'authenticated' => false,
-                'terminal' => $terminalCode
+                'terminal' => $terminalCode,
             ]);
         }
 
@@ -39,7 +41,7 @@ class SessionStatusController extends AbstractController
             'authenticated' => true,
             'display_name' => $session->getUser()->getDisplayName(),
             'role' => $session->getRole(),
-            'expires_at' => $session->getExpiresAt()->format('c')
+            'expires_at' => $session->getExpiresAt()->format('c'),
         ]);
     }
 }

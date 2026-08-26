@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +24,7 @@ class ProductionSummaryController extends AbstractController
     {
         // Calculate aggregate statistics safely.
         // We aggregate from cockpit_state for the most accurate current view.
-        
+
         $result = $this->em->getConnection()->fetchAssociative('
             SELECT 
                 COALESCE(SUM(total_requested), 0) as total_req,
@@ -36,7 +38,7 @@ class ProductionSummaryController extends AbstractController
             'total_requested' => (int) ($result['total_req'] ?? 0),
             'total_produced' => (int) ($result['total_prod'] ?? 0),
             'total_dispatched' => (int) ($result['total_disp'] ?? 0),
-            'available_stock' => (int) ($result['avail_stock'] ?? 0)
+            'available_stock' => (int) ($result['avail_stock'] ?? 0),
         ]);
     }
 }

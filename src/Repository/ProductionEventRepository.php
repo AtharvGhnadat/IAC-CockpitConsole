@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\ProductionEvent;
@@ -11,8 +13,8 @@ use Doctrine\Persistence\ManagerRegistry;
  *
  * @method ProductionEvent|null find($id, $lockMode = null, $lockVersion = null)
  * @method ProductionEvent|null findOneBy(array $criteria, array $orderBy = null)
- * @method ProductionEvent[]    findAll()
- * @method ProductionEvent[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method ProductionEvent[] findAll()
+ * @method ProductionEvent[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ProductionEventRepository extends ServiceEntityRepository
 {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\DTO;
 
 class DeviceEventEnvelope
@@ -13,7 +15,7 @@ class DeviceEventEnvelope
         string $sourceType,
         array $rawPayload,
         ?string $sourceIp = null,
-        ?\DateTimeImmutable $deviceTimestamp = null
+        ?\DateTimeImmutable $deviceTimestamp = null,
     ) {
         $this->sourceType = $sourceType;
         $this->rawPayload = $rawPayload;

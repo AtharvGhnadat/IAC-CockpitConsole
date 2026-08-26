@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Application\Service\DashboardSnapshotService;
@@ -33,7 +35,7 @@ class DashboardApiController extends AbstractController
     public function getConfig(): JsonResponse
     {
         $rows = $this->em->getRepository(DashboardRow::class)->findBy(['is_visible' => true], ['display_order' => 'ASC']);
-        
+
         $config = [];
         foreach ($rows as $row) {
             $cols = [];
@@ -44,7 +46,7 @@ class DashboardApiController extends AbstractController
                         'name' => $col->getName(),
                         'metric_key' => $col->getMetricKey(),
                         'cockpit_id' => $col->getCockpit() ? $col->getCockpit()->getId() : null,
-                        'display_order' => $col->getDisplayOrder()
+                        'display_order' => $col->getDisplayOrder(),
                     ];
                 }
             }
@@ -52,7 +54,7 @@ class DashboardApiController extends AbstractController
                 'id' => $row->getId(),
                 'name' => $row->getName(),
                 'display_order' => $row->getDisplayOrder(),
-                'columns' => $cols
+                'columns' => $cols,
             ];
         }
 
@@ -70,10 +72,10 @@ class DashboardApiController extends AbstractController
 
         $row = new DashboardRow();
         $row->setName($data['name']);
-        
+
         // simple order resolution
         $maxOrder = $this->em->createQuery('SELECT MAX(r.display_order) FROM App\Entity\DashboardRow r')->getSingleScalarResult();
-        $row->setDisplayOrder((int)$maxOrder + 1);
+        $row->setDisplayOrder((int) $maxOrder + 1);
 
         $this->em->persist($row);
         $this->em->flush();
@@ -104,13 +106,15 @@ class DashboardApiController extends AbstractController
         }
 
         $row = $this->em->getRepository(DashboardRow::class)->find($data['dashboard_row_id']);
-        if (!$row) return $this->json(['error' => 'Row not found'], 404);
+        if (!$row) {
+            return $this->json(['error' => 'Row not found'], 404);
+        }
 
         $col = new DashboardColumn();
         $col->setDashboardRow($row);
         $col->setName($data['name']);
         $col->setMetricKey($data['metric_key']);
-        
+
         if (isset($data['cockpit_id'])) {
             $cockpit = $this->em->getRepository(\App\Entity\Cockpit::class)->find($data['cockpit_id']);
             if ($cockpit) {
@@ -121,8 +125,8 @@ class DashboardApiController extends AbstractController
         $maxOrder = $this->em->createQuery('SELECT MAX(c.display_order) FROM App\Entity\DashboardColumn c WHERE c.dashboardRow = :r')
             ->setParameter('r', $row)
             ->getSingleScalarResult();
-        
-        $col->setDisplayOrder((int)$maxOrder + 1);
+
+        $col->setDisplayOrder((int) $maxOrder + 1);
 
         $this->em->persist($col);
         $this->em->flush();

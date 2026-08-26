@@ -23,30 +23,30 @@ final class Version20260826000007 extends AbstractMigration
 
         // Seed data for Default 4-row layout
         $now = date('Y-m-d H:i:s');
-        
+
         // ROW 1: Production Overview
-        $this->addSql("INSERT INTO dashboard_rows (name, display_order, is_visible, created_at) VALUES ('Production Overview', 1, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Total Requested', 'OVERALL_REQUESTED', 1, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Total Produced', 'OVERALL_PRODUCED', 2, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Total Dispatched', 'OVERALL_DISPATCHED', 3, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Available Stock', 'OVERALL_AVAILABLE', 4, 1, '$now')");
+        $this->addSql("INSERT INTO dashboard_rows (name, display_order, is_visible, created_at) VALUES ('Production Overview', 1, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Total Requested', 'OVERALL_REQUESTED', 1, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Total Produced', 'OVERALL_PRODUCED', 2, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Total Dispatched', 'OVERALL_DISPATCHED', 3, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Available Stock', 'OVERALL_AVAILABLE', 4, 1, '{$now}')");
 
         // ROW 2: Cockpit Status
-        $this->addSql("INSERT INTO dashboard_rows (name, display_order, is_visible, created_at) VALUES ('Cockpit Status', 2, 1, '$now')");
-        
+        $this->addSql("INSERT INTO dashboard_rows (name, display_order, is_visible, created_at) VALUES ('Cockpit Status', 2, 1, '{$now}')");
+
         // ROW 3: Production Queue
-        $this->addSql("INSERT INTO dashboard_rows (name, display_order, is_visible, created_at) VALUES ('Production Queue', 3, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Current Cockpit', 'FIFO_CURRENT', 1, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Next Cockpit', 'FIFO_NEXT', 2, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Queue Size', 'FIFO_QUEUE_SIZE', 3, 1, '$now')");
+        $this->addSql("INSERT INTO dashboard_rows (name, display_order, is_visible, created_at) VALUES ('Production Queue', 3, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Current Cockpit', 'FIFO_CURRENT', 1, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Next Cockpit', 'FIFO_NEXT', 2, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Queue Size', 'FIFO_QUEUE_SIZE', 3, 1, '{$now}')");
 
         // ROW 4: System Status
-        $this->addSql("INSERT INTO dashboard_rows (name, display_order, is_visible, created_at) VALUES ('System Status', 4, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Overall Health', 'HEALTH_OVERALL', 1, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'PLC Status', 'HEALTH_PLC', 2, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Scanner 1', 'HEALTH_SCANNER1', 3, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Scanner 2', 'HEALTH_SCANNER2', 4, 1, '$now')");
-        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'eSSL Fingerprint', 'HEALTH_ESSL', 5, 1, '$now')");
+        $this->addSql("INSERT INTO dashboard_rows (name, display_order, is_visible, created_at) VALUES ('System Status', 4, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Overall Health', 'HEALTH_OVERALL', 1, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'PLC Status', 'HEALTH_PLC', 2, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Scanner 1', 'HEALTH_SCANNER1', 3, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'Scanner 2', 'HEALTH_SCANNER2', 4, 1, '{$now}')");
+        $this->addSql("INSERT INTO dashboard_columns (dashboard_row_id, name, metric_key, display_order, is_visible, created_at) VALUES (LAST_INSERT_ID(), 'eSSL Fingerprint', 'HEALTH_ESSL', 5, 1, '{$now}')");
     }
 
     public function down(Schema $schema): void

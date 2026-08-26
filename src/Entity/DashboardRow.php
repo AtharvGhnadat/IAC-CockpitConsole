@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\DashboardRowRepository;
@@ -57,6 +59,7 @@ class DashboardRow
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -68,6 +71,7 @@ class DashboardRow
     public function setDisplayOrder(int $display_order): static
     {
         $this->display_order = $display_order;
+
         return $this;
     }
 
@@ -79,6 +83,7 @@ class DashboardRow
     public function setIsVisible(bool $is_visible): static
     {
         $this->is_visible = $is_visible;
+
         return $this;
     }
 
@@ -125,6 +130,7 @@ class DashboardRow
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

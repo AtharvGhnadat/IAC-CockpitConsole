@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\DeviceHealthRepository;
@@ -52,6 +54,7 @@ class DeviceHealth
     public function setDevice(Device $device): static
     {
         $this->device = $device;
+
         return $this;
     }
 
@@ -63,6 +66,7 @@ class DeviceHealth
     public function setLastSeenAt(?\DateTimeImmutable $last_seen_at): static
     {
         $this->last_seen_at = $last_seen_at;
+
         return $this;
     }
 
@@ -74,6 +78,7 @@ class DeviceHealth
     public function setLastValidEventAt(?\DateTimeImmutable $last_valid_event_at): static
     {
         $this->last_valid_event_at = $last_valid_event_at;
+
         return $this;
     }
 
@@ -85,6 +90,7 @@ class DeviceHealth
     public function setLastProcessedAt(?\DateTimeImmutable $last_processed_at): static
     {
         $this->last_processed_at = $last_processed_at;
+
         return $this;
     }
 
@@ -96,6 +102,7 @@ class DeviceHealth
     public function setLastErrorAt(?\DateTimeImmutable $last_error_at): static
     {
         $this->last_error_at = $last_error_at;
+
         return $this;
     }
 
@@ -107,6 +114,7 @@ class DeviceHealth
     public function setLastErrorCode(?string $last_error_code): static
     {
         $this->last_error_code = $last_error_code;
+
         return $this;
     }
 
@@ -118,18 +126,21 @@ class DeviceHealth
     public function setConsecutiveFailures(int $consecutive_failures): static
     {
         $this->consecutive_failures = $consecutive_failures;
+
         return $this;
     }
 
     public function incrementConsecutiveFailures(): static
     {
-        $this->consecutive_failures++;
+        ++$this->consecutive_failures;
+
         return $this;
     }
 
     public function resetConsecutiveFailures(): static
     {
         $this->consecutive_failures = 0;
+
         return $this;
     }
 
@@ -141,6 +152,7 @@ class DeviceHealth
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

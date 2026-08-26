@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Integration\Processing;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class Scanner2DispatchProcessorTest extends KernelTestCase
 {
-    public function testValidDispatchDecreasesAvailableStock()
+    public function testValidDispatchDecreasesAvailableStock(): void
     {
         // Conceptual test:
         // Produced = 70, Available = 70, Dispatched = 0
@@ -15,7 +17,7 @@ class Scanner2DispatchProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure validated.');
     }
 
-    public function testInsufficientStockRejectsDispatch()
+    public function testInsufficientStockRejectsDispatch(): void
     {
         // Conceptual test:
         // Produced = 5, Available = 5
@@ -24,7 +26,7 @@ class Scanner2DispatchProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure validated.');
     }
 
-    public function testUnknownModelRejectsDispatch()
+    public function testUnknownModelRejectsDispatch(): void
     {
         // Conceptual test:
         // Unknown model payload
@@ -32,7 +34,7 @@ class Scanner2DispatchProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure validated.');
     }
 
-    public function testInvalidQuantityRejectsDispatch()
+    public function testInvalidQuantityRejectsDispatch(): void
     {
         // Conceptual test:
         // quantity = 5 (configured batch size = 10)
@@ -40,7 +42,7 @@ class Scanner2DispatchProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure validated.');
     }
 
-    public function testDispatchDoesNotAlterBalanceOrFIFO()
+    public function testDispatchDoesNotAlterBalanceOrFIFO(): void
     {
         // Conceptual test:
         // Balance = -6

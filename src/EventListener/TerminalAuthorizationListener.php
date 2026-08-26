@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use App\Repository\TerminalRepository;
 use App\Repository\TerminalSessionRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
-use Psr\Log\LoggerInterface;
 
 #[AsEventListener(event: KernelEvents::REQUEST, method: 'onKernelRequest', priority: 0)]
 class TerminalAuthorizationListener
@@ -24,14 +26,14 @@ class TerminalAuthorizationListener
         TerminalSessionRepository $sessionRepo,
         TerminalRepository $terminalRepo,
         RouterInterface $router,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->sessionRepo = $sessionRepo;
         $this->terminalRepo = $terminalRepo;
         $this->router = $router;
         $this->logger = $logger;
         // Read terminal identity from env
-        $this->terminalCode = $_ENV['APP_TERMINAL_ID'] ?? 'TERMINAL-01'; 
+        $this->terminalCode = $_ENV['APP_TERMINAL_ID'] ?? 'TERMINAL-01';
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -56,18 +58,20 @@ class TerminalAuthorizationListener
         $terminal = $this->terminalRepo->findOneBy(['terminal_code' => $this->terminalCode, 'is_active' => true]);
         if (!$terminal) {
             $this->logger->error('Protected route accessed but server terminal identity is invalid or inactive.', [
-                'terminal_code' => $this->terminalCode
+                'terminal_code' => $this->terminalCode,
             ]);
             $this->redirectToLock($event);
+
             return;
         }
 
         // Validate Active Session
         $session = $this->sessionRepo->findActiveSessionForTerminal($terminal->getId());
-        
+
         if (!$session) {
             // No active session, redirect to lock
             $this->redirectToLock($event);
+
             return;
         }
 
@@ -76,9 +80,10 @@ class TerminalAuthorizationListener
         if (!$user->isActive()) {
             $this->logger->warning('User active state changed while session active. Denying access.', [
                 'session_uuid' => $session->getSessionUuid(),
-                'user' => $user->getUsername()
+                'user' => $user->getUsername(),
             ]);
             $this->redirectToLock($event);
+
             return;
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Device\Validator;
 
 class Scanner1PayloadValidator implements DevicePayloadValidatorInterface
@@ -8,8 +10,8 @@ class Scanner1PayloadValidator implements DevicePayloadValidatorInterface
     {
         $requiredFields = ['scanner', 'model', 'quantity', 'scandatetime'];
         foreach ($requiredFields as $field) {
-            if (!array_key_exists($field, $payload)) {
-                throw new \InvalidArgumentException(sprintf('Missing required field: %s', $field));
+            if (!\array_key_exists($field, $payload)) {
+                throw new \InvalidArgumentException(\sprintf('Missing required field: %s', $field));
             }
         }
 
@@ -19,7 +21,7 @@ class Scanner1PayloadValidator implements DevicePayloadValidatorInterface
 
         // Validate quantity structure (string representing a non-negative integer)
         $quantity = $payload['quantity'];
-        if (!is_string($quantity) || !ctype_digit($quantity)) {
+        if (!\is_string($quantity) || !ctype_digit($quantity)) {
             throw new \InvalidArgumentException('Quantity must be a valid non-negative integer string.');
         }
     }
@@ -29,8 +31,9 @@ class Scanner1PayloadValidator implements DevicePayloadValidatorInterface
         $timeString = $payload['scandatetime'];
         $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $timeString);
         if (!$dt || $dt->format('Y-m-d H:i:s') !== $timeString) {
-            throw new \InvalidArgumentException(sprintf('Invalid scandatetime format: %s', $timeString));
+            throw new \InvalidArgumentException(\sprintf('Invalid scandatetime format: %s', $timeString));
         }
+
         return $dt;
     }
 

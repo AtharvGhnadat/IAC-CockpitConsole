@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Processing;
 
 use App\Entity\AuditEvent;
@@ -12,8 +14,8 @@ use App\Repository\ProductionEventRepository;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Uid\Uuid;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Uid\Uuid;
 
 class Scanner1ProductionProcessor
 {
@@ -31,7 +33,7 @@ class Scanner1ProductionProcessor
         ProductionEventRepository $productionEventRepo,
         LoggerInterface $deviceIngestionLogger,
         #[Autowire(env: 'int:APP_PRODUCTION_BATCH_SIZE')]
-        int $batchSize = 10
+        int $batchSize = 10,
     ) {
         $this->em = $em;
         $this->mappingRepo = $mappingRepo;
@@ -51,12 +53,13 @@ class Scanner1ProductionProcessor
         $existingProd = $this->productionEventRepo->findOneBy(['device_event' => $event]);
         if ($existingProd) {
             $this->logger->info('Scanner1 event already processed. Skipping to enforce idempotency.', [
-                'device_event_id' => $event->getId()
+                'device_event_id' => $event->getId(),
             ]);
             if ($event->getProcessingStatus() !== 'processed') {
                 $event->setProcessingStatus('processed');
                 $this->em->flush();
             }
+
             return;
         }
 
@@ -68,21 +71,25 @@ class Scanner1ProductionProcessor
         // Validation
         if (!$modelStr) {
             $this->markAsFailed($event, 'UNKNOWN_MODEL', 'Missing model in scanner payload.');
+
             return;
         }
 
-        if ($quantityStr === null || (int)$quantityStr !== $this->batchSize) {
-            $this->markAsFailed($event, 'INVALID_BATCH_QUANTITY', sprintf('Expected batch size %d, got %s', $this->batchSize, $quantityStr));
+        if ($quantityStr === null || (int) $quantityStr !== $this->batchSize) {
+            $this->markAsFailed($event, 'INVALID_BATCH_QUANTITY', \sprintf('Expected batch size %d, got %s', $this->batchSize, $quantityStr));
+
             return;
         }
 
         $this->em->beginTransaction();
+
         try {
             // Find Model Mapping
             $mapping = $this->mappingRepo->findOneBy(['scanner_model' => $modelStr]);
             if (!$mapping || !$mapping->isActive()) {
                 $this->markAsFailed($event, 'UNKNOWN_MODEL', "Model '{$modelStr}' is not mapped or inactive.");
                 $this->em->commit();
+
                 return;
             }
 
@@ -107,14 +114,14 @@ class Scanner1ProductionProcessor
             // Perform Math
             $currentReq = (int) $cockpitState->getTotalRequested();
             $currentProd = (int) $cockpitState->getTotalProduced();
-            
+
             $oldBal = $currentReq - $currentProd;
-            
+
             $newProd = $currentProd + $this->batchSize;
             $newBal = $currentReq - $newProd;
 
-            $cockpitState->setTotalProduced((string)$newProd);
-            $cockpitState->setCurrentBalance((string)$newBal);
+            $cockpitState->setTotalProduced((string) $newProd);
+            $cockpitState->setCurrentBalance((string) $newBal);
             $cockpitState->setUpdatedAt(new \DateTimeImmutable());
 
             // Create Production Ledger Entry
@@ -125,19 +132,19 @@ class Scanner1ProductionProcessor
             $prodEvent->setScannerModel($modelStr);
             $prodEvent->setQuantity($this->batchSize);
             $prodEvent->setReceivedAt($event->getReceivedAt());
-            
+
             if ($dateTimeStr) {
                 $deviceTime = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $dateTimeStr);
                 if ($deviceTime) {
                     $prodEvent->setDeviceTimestamp($deviceTime);
                 }
             }
-            
+
             $now = new \DateTimeImmutable();
             $prodEvent->setProcessedAt($now);
-            
+
             $this->em->persist($prodEvent);
-            
+
             // FIFO Queue Integration (Phase 7)
             if ($oldBal > 0 && $newBal <= 0) {
                 // Shortage resolved. Complete the active queue entry.
@@ -145,13 +152,13 @@ class Scanner1ProductionProcessor
                     ->setParameter('cockpit', $cockpit)
                     ->setParameter('statuses', ['pending', 'selected', 'in_production'])
                     ->setLockMode(LockMode::PESSIMISTIC_WRITE); // Ensure we lock it securely
-                
+
                 $queue = $query->getOneOrNullResult();
                 if ($queue) {
                     $queue->setStatus('completed');
                     $queue->setCompletedAt($now);
                     $queue->setUpdatedAt($now);
-                    
+
                     // Audit Queue Exit
                     $queueAudit = new AuditEvent();
                     $queueAudit->setEventType('FIFO_RESOLVED');
@@ -159,7 +166,7 @@ class Scanner1ProductionProcessor
                     $queueAudit->setContext([
                         'cockpit' => $cockpit->getCockpitCode(),
                         'queue_uuid' => $queue->getQueueUuid(),
-                        'device_event_id' => $event->getId()
+                        'device_event_id' => $event->getId(),
                     ]);
                     $this->em->persist($queueAudit);
                 }
@@ -178,7 +185,7 @@ class Scanner1ProductionProcessor
                 'production_uuid' => $prodEvent->getProductionUuid(),
                 'cockpit' => $cockpit->getCockpitCode(),
                 'new_produced' => $cockpitState->getTotalProduced(),
-                'new_balance' => $cockpitState->getCurrentBalance()
+                'new_balance' => $cockpitState->getCurrentBalance(),
             ]);
             $this->em->persist($audit);
 
@@ -188,17 +195,17 @@ class Scanner1ProductionProcessor
             $this->logger->info('Trolley production successfully processed.', [
                 'device_event_id' => $event->getId(),
                 'cockpit' => $cockpit->getCockpitCode(),
-                'new_balance' => $cockpitState->getCurrentBalance()
+                'new_balance' => $cockpitState->getCurrentBalance(),
             ]);
-
         } catch (\Exception $e) {
             $this->em->rollback();
             $this->logger->error('Transaction failed during Scanner1 processing.', [
                 'error' => $e->getMessage(),
-                'device_event_id' => $event->getId()
+                'device_event_id' => $event->getId(),
             ]);
-            
+
             $this->markAsFailed($event, 'PROCESSING_ERROR', $e->getMessage(), true);
+
             throw $e;
         }
     }
@@ -208,24 +215,24 @@ class Scanner1ProductionProcessor
         if ($newTransaction && !$this->em->isOpen()) {
             return;
         }
-        
+
         $event->setProcessingStatus('failed');
         $event->setLastError($reason . ': ' . $details);
-        
+
         $audit = new AuditEvent();
         $audit->setEventType('TROLLEY_PRODUCTION_REJECTED');
         $audit->setDescription($reason);
         $audit->setContext([
             'device_event_id' => $event->getId(),
-            'details' => $details
+            'details' => $details,
         ]);
-        
+
         $this->em->persist($audit);
         $this->em->flush();
 
         $this->logger->warning('Scanner1 Production Failed/Rejected.', [
             'device_event_id' => $event->getId(),
-            'reason' => $reason
+            'reason' => $reason,
         ]);
     }
 }

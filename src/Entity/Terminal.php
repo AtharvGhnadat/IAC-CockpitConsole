@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\TerminalRepository;
@@ -50,6 +52,7 @@ class Terminal
     public function setTerminalCode(string $terminal_code): static
     {
         $this->terminal_code = $terminal_code;
+
         return $this;
     }
 
@@ -61,6 +64,7 @@ class Terminal
     public function setTerminalName(string $terminal_name): static
     {
         $this->terminal_name = $terminal_name;
+
         return $this;
     }
 
@@ -72,6 +76,7 @@ class Terminal
     public function setFingerprintDeviceIp(?string $fingerprint_device_ip): static
     {
         $this->fingerprint_device_ip = $fingerprint_device_ip;
+
         return $this;
     }
 
@@ -83,6 +88,7 @@ class Terminal
     public function setIsActive(bool $is_active): static
     {
         $this->is_active = $is_active;
+
         return $this;
     }
 
@@ -99,6 +105,7 @@ class Terminal
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

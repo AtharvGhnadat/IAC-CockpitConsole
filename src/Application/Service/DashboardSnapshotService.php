@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Service;
 
 use App\Repository\CockpitStateRepository;
@@ -17,7 +19,7 @@ class DashboardSnapshotService
         EntityManagerInterface $em,
         SystemHealthService $healthService,
         CockpitStateRepository $cockpitStateRepo,
-        ProductionQueueRepository $queueRepo
+        ProductionQueueRepository $queueRepo,
     ) {
         $this->em = $em;
         $this->healthService = $healthService;
@@ -28,10 +30,10 @@ class DashboardSnapshotService
     public function getSnapshot(): array
     {
         $now = new \DateTimeImmutable();
-        
+
         $snapshot = [
             'generated_at' => $now->format('c'),
-            'metrics' => []
+            'metrics' => [],
         ];
 
         try {
@@ -45,7 +47,7 @@ class DashboardSnapshotService
                     SUM(available_stock) as overall_available
                 FROM cockpit_state
             ');
-            
+
             $snapshot['metrics']['OVERALL_REQUESTED'] = (int) ($totals['overall_requested'] ?? 0);
             $snapshot['metrics']['OVERALL_PRODUCED'] = (int) ($totals['overall_produced'] ?? 0);
             $snapshot['metrics']['OVERALL_DISPATCHED'] = (int) ($totals['overall_dispatched'] ?? 0);
@@ -65,13 +67,13 @@ class DashboardSnapshotService
             // FIFO Metrics
             $current = $this->queueRepo->findCurrentProductionCockpit();
             $snapshot['metrics']['FIFO_CURRENT'] = $current ? $current->getCockpit()->getCockpitName() : 'None';
-            
+
             $next = $this->queueRepo->findOneBy(
                 ['status' => 'pending'],
-                ['created_at' => 'ASC']
+                ['created_at' => 'ASC'],
             );
             $snapshot['metrics']['FIFO_NEXT'] = $next ? $next->getCockpit()->getCockpitName() : 'None';
-            
+
             $queueCount = $this->queueRepo->count(['status' => 'pending']);
             $snapshot['metrics']['FIFO_QUEUE_SIZE'] = $queueCount;
 
@@ -82,7 +84,7 @@ class DashboardSnapshotService
                 $ageMinutes = (int) floor((time() - $q->getCreatedAt()->getTimestamp()) / 60);
                 $snapshot['queue'][] = [
                     'cockpit' => $q->getCockpit()->getCockpitName(),
-                    'waiting_minutes' => $ageMinutes
+                    'waiting_minutes' => $ageMinutes,
                 ];
             }
 
@@ -93,7 +95,6 @@ class DashboardSnapshotService
             $snapshot['metrics']['HEALTH_SCANNER1'] = $health['devices']['SCANNER1']['status'] ?? 'UNKNOWN';
             $snapshot['metrics']['HEALTH_SCANNER2'] = $health['devices']['SCANNER2']['status'] ?? 'UNKNOWN';
             $snapshot['metrics']['HEALTH_ESSL'] = $health['devices']['ESSL']['status'] ?? 'UNKNOWN';
-
         } catch (\Exception $e) {
             $snapshot['metrics']['HEALTH_OVERALL'] = 'CRITICAL';
             $snapshot['error'] = 'Failed to generate full snapshot';

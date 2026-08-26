@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Migration for Phase 2: CockpitConsole Database Foundation
+ * Migration for Phase 2: CockpitConsole Database Foundation.
  */
 final class Version20260826000000 extends AbstractMigration
 {
@@ -25,7 +25,7 @@ final class Version20260826000000 extends AbstractMigration
         $this->addSql('CREATE TABLE device_events (id BIGINT AUTO_INCREMENT NOT NULL, device_id INT DEFAULT NULL, event_uuid VARCHAR(36) NOT NULL, source_type VARCHAR(50) NOT NULL, source_ip VARCHAR(45) DEFAULT NULL, device_timestamp DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', received_at DATETIME(6) NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', raw_payload LONGTEXT NOT NULL COMMENT \'(DC2Type:json)\', payload_hash VARCHAR(64) NOT NULL, processing_status VARCHAR(50) NOT NULL, processing_attempts INT NOT NULL, processed_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', last_error LONGTEXT DEFAULT NULL, created_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', UNIQUE INDEX UNIQ_DEVICE_EVENTS_UUID (event_uuid), INDEX IDX_DEVICE_EVENTS_DEVICE (device_id), INDEX idx_received_at (received_at), INDEX idx_processing_status (processing_status), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE processing_failures (id INT AUTO_INCREMENT NOT NULL, device_event_id BIGINT NOT NULL, failure_type VARCHAR(100) NOT NULL, message LONGTEXT NOT NULL, attempt_number INT NOT NULL, exception_class VARCHAR(255) DEFAULT NULL, context LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', created_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', resolved_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', resolution_note LONGTEXT DEFAULT NULL, INDEX IDX_PF_DEVICE_EVENT (device_event_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE audit_events (id INT AUTO_INCREMENT NOT NULL, event_type VARCHAR(100) NOT NULL, actor_type VARCHAR(100) NOT NULL, actor_identifier VARCHAR(255) DEFAULT NULL, entity_type VARCHAR(100) DEFAULT NULL, entity_identifier VARCHAR(255) DEFAULT NULL, description LONGTEXT DEFAULT NULL, context LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', created_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', INDEX idx_event_type (event_type), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        
+
         $this->addSql('ALTER TABLE cockpit_model_mappings ADD CONSTRAINT FK_CMM_COCKPIT FOREIGN KEY (cockpit_id) REFERENCES cockpits (id)');
         $this->addSql('ALTER TABLE device_events ADD CONSTRAINT FK_DEVICE_EVENTS_DEVICE FOREIGN KEY (device_id) REFERENCES devices (id)');
         $this->addSql('ALTER TABLE processing_failures ADD CONSTRAINT FK_PF_DEVICE_EVENT FOREIGN KEY (device_event_id) REFERENCES device_events (id)');
@@ -36,7 +36,7 @@ final class Version20260826000000 extends AbstractMigration
         $this->addSql('ALTER TABLE cockpit_model_mappings DROP FOREIGN KEY FK_CMM_COCKPIT');
         $this->addSql('ALTER TABLE device_events DROP FOREIGN KEY FK_DEVICE_EVENTS_DEVICE');
         $this->addSql('ALTER TABLE processing_failures DROP FOREIGN KEY FK_PF_DEVICE_EVENT');
-        
+
         $this->addSql('DROP TABLE devices');
         $this->addSql('DROP TABLE cockpits');
         $this->addSql('DROP TABLE cockpit_model_mappings');

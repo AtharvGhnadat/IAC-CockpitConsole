@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Integration\Processing;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class PlcRequestProcessorTest extends KernelTestCase
 {
-    public function testProcessCreatesRequestEventAndUpdatesCockpitState()
+    public function testProcessCreatesRequestEventAndUpdatesCockpitState(): void
     {
         // Placeholder for PHPUnit test logic requiring PHP 8.2 execution environment
         // 1. Create a mock DeviceEvent (source_type = plc)
@@ -16,7 +18,7 @@ class PlcRequestProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure established. Execution pending PHP 8.2 upgrade.');
     }
 
-    public function testIdempotencyPreventsDuplicateProcessing()
+    public function testIdempotencyPreventsDuplicateProcessing(): void
     {
         // 1. Process a DeviceEvent once
         // 2. Process the same DeviceEvent again
@@ -24,7 +26,7 @@ class PlcRequestProcessorTest extends KernelTestCase
         $this->assertTrue(true, 'Test structure established.');
     }
 
-    public function testUnknownCockpitFailsGracefully()
+    public function testUnknownCockpitFailsGracefully(): void
     {
         // 1. Create DeviceEvent with an unknown cockpit code
         // 2. Process it

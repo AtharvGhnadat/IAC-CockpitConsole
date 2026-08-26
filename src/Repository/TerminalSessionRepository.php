@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\TerminalSession;
@@ -30,7 +32,7 @@ class TerminalSessionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-    
+
     public function findActiveSessionByEventId(int $eventId): ?TerminalSession
     {
         return $this->createQueryBuilder('ts')

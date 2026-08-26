@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Application\Service\SystemHealthService;
@@ -20,12 +22,12 @@ class HealthApiController extends AbstractController
     public function publicHealth(): JsonResponse
     {
         $snapshot = $this->healthService->getHealthSnapshot();
-        
+
         // Public endpoint should only expose minimal DB/infrastructure status
         $status = $snapshot['database']['status'] === 'HEALTHY' ? 'ok' : 'degraded';
-        
+
         $code = $status === 'ok' ? 200 : 503;
-        
+
         return $this->json(['status' => $status], $code);
     }
 
@@ -33,19 +35,19 @@ class HealthApiController extends AbstractController
     public function summaryHealth(): JsonResponse
     {
         $snapshot = $this->healthService->getHealthSnapshot();
-        
+
         // Operator summary
         $summary = [
             'overall' => $snapshot['overall'],
             'database' => $snapshot['database']['status'],
             'processing' => $snapshot['processing']['status'],
-            'devices' => []
+            'devices' => [],
         ];
-        
+
         foreach ($snapshot['devices'] as $code => $deviceHealth) {
             $summary['devices'][$code] = $deviceHealth['status'];
         }
-        
+
         return $this->json($summary);
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\ProductionQueueRepository;
@@ -76,6 +78,7 @@ class ProductionQueue
     public function setQueueUuid(string $queue_uuid): static
     {
         $this->queue_uuid = $queue_uuid;
+
         return $this;
     }
 
@@ -87,6 +90,7 @@ class ProductionQueue
     public function setCockpit(?Cockpit $cockpit): static
     {
         $this->cockpit = $cockpit;
+
         return $this;
     }
 
@@ -98,6 +102,7 @@ class ProductionQueue
     public function setTriggerRequestEvent(?RequestEvent $trigger_request_event): static
     {
         $this->trigger_request_event = $trigger_request_event;
+
         return $this;
     }
 
@@ -109,6 +114,7 @@ class ProductionQueue
     public function setPendingDeviceTimestamp(?\DateTimeImmutable $pending_device_timestamp): static
     {
         $this->pending_device_timestamp = $pending_device_timestamp;
+
         return $this;
     }
 
@@ -120,6 +126,7 @@ class ProductionQueue
     public function setPendingReceivedAt(\DateTimeImmutable $pending_received_at): static
     {
         $this->pending_received_at = $pending_received_at;
+
         return $this;
     }
 
@@ -131,6 +138,7 @@ class ProductionQueue
     public function setPendingEventId(string $pending_event_id): static
     {
         $this->pending_event_id = $pending_event_id;
+
         return $this;
     }
 
@@ -142,6 +150,7 @@ class ProductionQueue
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
         return $this;
     }
 
@@ -153,6 +162,7 @@ class ProductionQueue
     public function setEnteredAt(\DateTimeImmutable $entered_at): static
     {
         $this->entered_at = $entered_at;
+
         return $this;
     }
 
@@ -164,6 +174,7 @@ class ProductionQueue
     public function setSelectedAt(?\DateTimeImmutable $selected_at): static
     {
         $this->selected_at = $selected_at;
+
         return $this;
     }
 
@@ -175,6 +186,7 @@ class ProductionQueue
     public function setStartedAt(?\DateTimeImmutable $started_at): static
     {
         $this->started_at = $started_at;
+
         return $this;
     }
 
@@ -186,6 +198,7 @@ class ProductionQueue
     public function setCompletedAt(?\DateTimeImmutable $completed_at): static
     {
         $this->completed_at = $completed_at;
+
         return $this;
     }
 
@@ -202,6 +215,7 @@ class ProductionQueue
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
         return $this;
     }
 }

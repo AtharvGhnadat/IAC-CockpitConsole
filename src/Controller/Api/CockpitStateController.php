@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Repository\CockpitRepository;
@@ -14,10 +16,10 @@ class CockpitStateController extends AbstractController
     public function getState(
         string $cockpitCode,
         CockpitRepository $cockpitRepo,
-        CockpitStateRepository $cockpitStateRepo
+        CockpitStateRepository $cockpitStateRepo,
     ): JsonResponse {
         $cockpit = $cockpitRepo->findOneBy(['cockpit_code' => $cockpitCode]);
-        
+
         if (!$cockpit) {
             return $this->json(['error' => 'Cockpit not found'], 404);
         }
@@ -30,7 +32,7 @@ class CockpitStateController extends AbstractController
             'total_produced' => $state ? (int) $state->getTotalProduced() : 0,
             'total_dispatched' => $state ? (int) $state->getTotalDispatched() : 0,
             'available_stock' => $state ? (int) $state->getAvailableStock() : 0,
-            'current_balance' => $state ? (int) $state->getCurrentBalance() : 0
+            'current_balance' => $state ? (int) $state->getCurrentBalance() : 0,
         ]);
     }
 }
